@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - SociosXIT</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* =========================================
+           1. FUENTES Y PROTECCIÓN (Omitido por espacio, usa el tuyo original)
+           ========================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
+        
+        * { user-select: none; box-sizing: border-box; }
+        
+        :root { 
+            --neon-purple: #bc13fe; 
+            --neon-red: #ff073a; 
+            --neon-cyan: #00f3ff; 
+            --neon-green: #00ffcc; 
+            --glass-bg: rgba(15, 0, 25, 0.7); 
+            --sidebar-bg: rgba(5, 10, 20, 0.95); 
+        }
+        
+        body { 
+            background-color: #020005; color: white; 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; padding: 0; min-height: 100dvh; 
+            display: flex; justify-content: center; align-items: flex-start; 
+            flex-direction: column; overflow-x: hidden; 
+        }
+        
+        /* ... (tus estilos originales CSS aquí) ... */
+
+        /* --- NUEVOS ESTILOS PARA LA TARJETA DE OFERTA DE LEVEL UP --- */
+        .offer-card {
+            background: rgba(0, 15, 25, 0.6);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,243,255,0.1);
+        }
+        .offer-card h3 { 
+            font-family: 'Orbitron'; color: var(--neon-cyan); 
+            font-size: 1.2rem; margin: 0 0 15px 0;
+            display: flex; align-items: center; gap: 10px;
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+        .offer-details { display: flex; gap: 15px; align-items: center; margin-bottom: 15px;}
+        .clan-logo-buy { width: 80px; height: 80px; border-radius: 12px; border: 2px solid var(--neon-cyan); object-fit: cover; box-shadow: 0 0 15px rgba(0,243,255,0.3);}
+        .offer-text p { margin: 0 0 5px 0; font-size: 0.9rem; color: #ccc; }
+        .offer-price { font-family: 'Orbitron'; color: var(--neon-green); font-size: 1.3rem; font-weight: bold; margin-top: 8px; text-shadow: 0 0 8px rgba(0,255,204,0.5);}
+        
+        .btn-buy-now { 
+            width: 100%; background: var(--neon-cyan); color: #000; border: none; 
+            padding: 12px; border-radius: 10px; font-weight: bold; 
+            cursor: pointer; transition: 0.3s; font-family: 'Orbitron'; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 1rem;
+        }
+        .btn-buy-now:hover { box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.02); background: #fff;}
+        /* ----------------------------------------------------------- */
+
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="uploadLoader">
+        <div class="spinner"></div>
+        <p style="color: var(--neon-cyan); font-family: 'Orbitron'; margin-top: 15px;">PROCESANDO COMPRA...</p>
+    </div>
+
+    <div class="profile-container">
+        
+        <div class="offer-card">
+            <h3><i class='bx bx-up-arrow-circle'></i> Clan Level UP Service</h3>
+            <div class="offer-details">
+                <img src="Logo/imagenclan.png" alt="Clan Logo" class="clan-logo-buy">
+                <div class="offer-text">
+                    <p>Potencia tu clan rápidamente.</p>
+                    <p><b>Duración:</b> 8 Horas continuas.</p>
+                    <p><b>Servicio:</b> 4 Bots activos jugando.</p>
+                    <p class="offer-price">$5.00 USD</p>
+                </div>
+            </div>
+            <button class="btn-buy-now" onclick="buyClanLevelUp()">
+                <i class='bx bx-cart-add'></i> COMPRAR AHORA
+            </button>
+        </div>
+        </div>
+
+    <script type="module">
+        import { auth, db, onAuthStateChanged, signOut, ref, get, child, update, push, set } from './firebase-config.js';
+        
+        // (Lógica de autenticación y carga de datos del usuario omitida, usa la tuya original)
+
+        // --- NUEVA LÓGICA SISTEMA DE VENTA LEVEL UP (WEB -> FIREBASE) ---
+        // Esta función corre en el navegador del cliente. 
+        // Descuenta saldo y crea una orden que el bot externo leerá.
+        window.buyClanLevelUp = async () => {
+            if(!currentUserUid) { alert("Error: No hay sesión activa."); return; }
+            
+            const price = 5.00;
+            const product = "Clan Level UP (8H - 4 Bots)";
+            
+            if(!confirm(`¿Deseas comprar "${product}" por $${price.toFixed(2)} USD?\nEl saldo se descontará automáticamente de tu cuenta.`)) return;
+
+            document.getElementById('uploadLoader').style.display = 'flex';
+
+            try {
+                // 1. Obtener datos actuales del usuario (Saldo e info de contacto)
+                const snapshot = await get(child(ref(db), `users/${currentUserUid}`));
+                
+                if (!snapshot.exists()) throw new Error("Datos de usuario no encontrados.");
+                
+                const data = snapshot.val();
+                const currentBalance = parseFloat(data.balance || 0);
+
+                // 2. Verificar saldo suficiente
+                if(currentBalance < price) {
+                    alert("❌ Saldo insuficiente. Por favor recarga.");
+                    document.getElementById('uploadLoader').style.display = 'none';
+                    return;
+                }
+
+                // 3. Crear el objeto de la orden para que el BOT la procese
+                const now = new Date();
+                const timestamp = now.getTime();
+                const orderId = push(ref(db, 'clan_level_up_orders')).key; // Generar UID para la orden
+                
+                const clanOrderData = {
+                    uid: currentUserUid,
+                    username: data.username,
+                    waNumber: data.waNumber || 'No vinculado', // Útil si el usuario vinculó su WA
+                    product: product,
+                    price: price,
+                    timestamp: timestamp,
+                    status: 'Pendiente', // El bot cambiará esto a 'Completado' o 'Error'
+                    processed: false
+                };
+
+                // 4. Crear registro de historial para el usuario
+                const historyItem = {
+                    date: `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`,
+                    details: product,
+                    price: price,
+                    refunded: false,
+                    status: 'Procesando (Verificar WhatsApp)',
+                    type: 'Compra Servicio'
+                };
+
+                // 5. Preparar actualizaciones atómicas
+                const newBalance = currentBalance - price;
+                const updates = {};
+                
+                // Descontar saldo del usuario
+                updates[`/users/${currentUserUid}/balance`] = newBalance;
+                
+                // Añadir al historial del usuario
+                const newHistoryKey = push(ref(db, `users/${currentUserUid}/history`)).key;
+                updates[`/users/${currentUserUid}/history/${newHistoryKey}`] = historyItem;
+
+                // Crear la orden en la cola para el BOT administrativo
+                updates[`/clan_level_up_orders/${orderId}`] = clanOrderData;
+
+                // 6. Ejecutar actualizaciones en Firebase
+                await update(ref(db), updates);
+
+                // 7. Actualizar Interfaz visualmente
+                document.getElementById('balanceDisplay').innerText = newBalance.toFixed(2);
+                
+                // (Omitido recalcular total gastado, usa tu lógica original)
+
+                document.getElementById('uploadLoader').style.display = 'none';
+                
+                // Éxito: Informar al usuario
+                alert(`✅ ¡Compra exitosa!\n\nSe han descontado $${price.toFixed(2)} USD.\n\nNuestro sistema ha notificado automáticamente a los administradores. En breve nos pondremos en contacto contigo vía WhatsApp para coordinar el ingreso de los bots al clan.\n\nGracias por tu compra.`);
+
+            } catch (error) {
+                document.getElementById('uploadLoader').style.display = 'none';
+                console.error("Error en la compra:", error);
+                alert("❌ Ocurrió un error al procesar la compra: " + error.message);
+            }
+        };
+        // ----------------------------------------------------------------
+    </script>
+</body>
+</html>
