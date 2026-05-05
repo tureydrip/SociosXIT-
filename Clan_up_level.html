@@ -165,28 +165,6 @@
             animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.4s; opacity: 0;
         }
 
-        /* PANEL DE INFORMACIÓN DE HORAS */
-        .info-banner {
-            background: rgba(15, 20, 30, 0.7);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-left: 5px solid var(--neon-blue);
-            border-radius: 16px;
-            padding: 20px 25px;
-            margin-bottom: 30px;
-            text-align: left;
-            backdrop-filter: blur(10px);
-            animation: fadeInUP 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
-            opacity: 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-        }
-        .info-banner h3 {
-            color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-bottom: 8px;
-            display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); letter-spacing: 0.5px;
-        }
-        .info-banner h3 i { color: var(--neon-blue); font-size: 1.6rem; animation: pulseIcon 2s infinite alternate; }
-        .info-banner p { color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0; }
-        .info-banner strong { color: var(--neon-blue); font-weight: 700; }
-
         /* PANEL DE ESTADO DE BOTS (EN VIVO) */
         #activeBotsPanel {
             animation: fadeInUP 0.5s ease-out;
@@ -218,6 +196,28 @@
             background: var(--neon-pink); color: #fff; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
             transform: translateY(-2px);
         }
+
+        /* PANEL DE INFORMACIÓN DE HORAS */
+        .info-banner {
+            background: rgba(15, 20, 30, 0.7);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-left: 5px solid var(--neon-blue);
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            animation: fadeInUP 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+            opacity: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .info-banner h3 {
+            color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1.2rem; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 10px; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); letter-spacing: 0.5px;
+        }
+        .info-banner h3 i { color: var(--neon-blue); font-size: 1.6rem; animation: pulseIcon 2s infinite alternate; }
+        .info-banner p { color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin: 0; }
+        .info-banner strong { color: var(--neon-blue); font-weight: 700; }
 
         /* Grid de Planes */
         .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
@@ -483,7 +483,6 @@
 
     <script type="module">
         import { auth, db, onAuthStateChanged, signOut, ref, get, child, update, push } from './firebase-config.js';
-        import { onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         let currentUserUid = null;
         let userData = null;
@@ -494,6 +493,68 @@
             e.preventDefault();
             signOut(auth).then(() => window.location.href = "login.html");
         };
+
+        // BUCLE INTELIGENTE PARA ACTUALIZAR EL PANEL DE BOTS (A prueba de fallos)
+        function checkActiveBots() {
+            if (!currentUserUid) return;
+            
+            get(ref(db, 'clan_level_up_orders')).then((orderSnapshot) => {
+                const panel = document.getElementById('activeBotsPanel');
+                const box = document.getElementById('statusBoxContainer');
+                const title = document.getElementById('statusTitle');
+                const content = document.getElementById('statusContent');
+                
+                let hasActiveOrder = false;
+                let latestOrder = null;
+                let highestTime = 0;
+
+                if (orderSnapshot.exists()) {
+                    orderSnapshot.forEach(childSnap => {
+                        const order = childSnap.val();
+                        if (order.uid === currentUserUid) {
+                            if (order.timestamp > highestTime) {
+                                highestTime = order.timestamp;
+                                latestOrder = order;
+                            }
+                        }
+                    });
+
+                    if (latestOrder && (latestOrder.status === 'Pendiente' || latestOrder.status === 'Activo')) {
+                        hasActiveOrder = true;
+                        
+                        if (latestOrder.status === 'Pendiente') {
+                            box.style.borderTopColor = '#f59e0b';
+                            title.innerHTML = `<i class='bx bx-loader-circle bx-spin' style="color:#f59e0b;"></i> ESTADO DE TUS BOTS`;
+                            title.style.color = '#fcd34d';
+                            content.innerHTML = `
+                                <p style="color: #cbd5e1; font-size: 1rem; line-height: 1.6;">
+                                    <strong style="color: #fcd34d;">⏳ Pendiente:</strong> Solicitando permiso al servidor, esto puede tardar hasta 1 hora.
+                                </p>
+                                <p style="color: #64748b; font-size: 0.85rem; margin-top: 8px;">Plan: ${latestOrder.product}</p>
+                            `;
+                        } else if (latestOrder.status === 'Activo') {
+                            box.style.borderTopColor = 'var(--neon-green)';
+                            title.innerHTML = `<i class='bx bx-radar bx-flashing' style="color:var(--neon-green);"></i> ESTADO DE TUS BOTS`;
+                            title.style.color = 'var(--neon-green)';
+                            content.innerHTML = `
+                                <p style="color: #cbd5e1; font-size: 1rem; line-height: 1.6;">
+                                    <strong style="color: var(--neon-green);">🚀 Activos:</strong> Activando, los bots empiezan a sumar puntos después de 15 a 30 minutos.
+                                </p>
+                                <p style="color: #64748b; font-size: 0.85rem; margin-top: 8px;">Plan: ${latestOrder.product}</p>
+                            `;
+                        }
+                    }
+                }
+
+                if (hasActiveOrder) {
+                    panel.style.display = 'block';
+                } else {
+                    panel.style.display = 'none';
+                }
+            }).catch(err => {
+                console.error("Error leyendo bots silenciosamente:", err);
+            });
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -514,65 +575,9 @@
                         const waLink = `https://wa.me/573142369516?text=Hola,%20soy%20el%20usuario%20${userData.username}.%20Mis%20bots%20del%20clan%20fueron%20baneados.`;
                         document.getElementById('btnBanWhatsapp').href = waLink;
 
-                        // ESCUCHADOR EN VIVO (Filtrado por JavaScript para evitar bloqueos de reglas de Firebase)
-                        const ordersRef = ref(db, 'clan_level_up_orders');
-                        
-                        onValue(ordersRef, (orderSnapshot) => {
-                            const panel = document.getElementById('activeBotsPanel');
-                            const box = document.getElementById('statusBoxContainer');
-                            const title = document.getElementById('statusTitle');
-                            const content = document.getElementById('statusContent');
-                            
-                            let hasActiveOrder = false;
-                            let latestOrder = null;
-                            let highestTime = 0;
-
-                            if (orderSnapshot.exists()) {
-                                orderSnapshot.forEach(childSnap => {
-                                    const order = childSnap.val();
-                                    
-                                    // Filtramos solo las órdenes de este usuario en específico
-                                    if (order.uid === currentUserUid) {
-                                        if (order.timestamp > highestTime) {
-                                            highestTime = order.timestamp;
-                                            latestOrder = order;
-                                        }
-                                    }
-                                });
-
-                                if (latestOrder && (latestOrder.status === 'Pendiente' || latestOrder.status === 'Activo')) {
-                                    hasActiveOrder = true;
-                                    
-                                    if (latestOrder.status === 'Pendiente') {
-                                        box.style.borderTopColor = '#f59e0b';
-                                        title.innerHTML = `<i class='bx bx-loader-circle bx-spin' style="color:#f59e0b;"></i> ESTADO DE TUS BOTS`;
-                                        title.style.color = '#fcd34d';
-                                        content.innerHTML = `
-                                            <p style="color: #cbd5e1; font-size: 1rem; line-height: 1.6;">
-                                                <strong style="color: #fcd34d;">⏳ Pendiente:</strong> Solicitando permiso al servidor, esto puede tardar hasta 1 hora.
-                                            </p>
-                                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 8px;">Plan: ${latestOrder.product}</p>
-                                        `;
-                                    } else if (latestOrder.status === 'Activo') {
-                                        box.style.borderTopColor = 'var(--neon-green)';
-                                        title.innerHTML = `<i class='bx bx-radar bx-flashing' style="color:var(--neon-green);"></i> ESTADO DE TUS BOTS`;
-                                        title.style.color = 'var(--neon-green)';
-                                        content.innerHTML = `
-                                            <p style="color: #cbd5e1; font-size: 1rem; line-height: 1.6;">
-                                                <strong style="color: var(--neon-green);">🚀 Activos:</strong> Activando, los bots empiezan a sumar puntos después de 15 a 30 minutos.
-                                            </p>
-                                            <p style="color: #64748b; font-size: 0.85rem; margin-top: 8px;">Plan: ${latestOrder.product}</p>
-                                        `;
-                                    }
-                                }
-                            }
-
-                            if (hasActiveOrder) {
-                                panel.style.display = 'block';
-                            } else {
-                                panel.style.display = 'none';
-                            }
-                        });
+                        // Lanzar la revisión automática del panel (Evita el error de SDK)
+                        checkActiveBots();
+                        setInterval(checkActiveBots, 5000); // Se actualiza cada 5 segundos
 
                         setTimeout(() => {
                             document.getElementById('loadingScreen').style.opacity = '0';
@@ -662,7 +667,7 @@
                     product: currentSelectedProduct,
                     price: price,
                     timestamp: now,
-                    status: 'Pendiente', // Nace como pendiente para que muestre el texto amarillo
+                    status: 'Pendiente', // Nace como pendiente para que muestre el panel amarillo
                     processed: false
                 };
 
@@ -671,6 +676,9 @@
                 userData.balance = newBalance; 
                 document.getElementById('topBalance').innerText = newBalance.toFixed(2);
                 
+                // Forzamos la actualización del panel inmediatamente después de pagar
+                checkActiveBots();
+
                 setTimeout(() => {
                     document.getElementById('loadingScreen').style.display = 'none';
                     btnConfirm.disabled = false;
