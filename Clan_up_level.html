@@ -524,11 +524,10 @@
 
             const btnConfirm = document.getElementById('btnConfirmPurchase');
             btnConfirm.disabled = true;
-            btnConfirm.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> PROCESANDO...";
-
+            // AQUI CAMBIÉ EL TEXTO PARA SABER SI EL CACHÉ SE BORRÓ
             document.getElementById('loadingScreen').style.opacity = '1';
             document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('loadingScreen').innerHTML = `<div class="spinner"></div><h2 class="animate-pulse" style="font-family:'Orbitron'; color:#fff; font-weight:300; font-size:1.2rem; letter-spacing:2px;">Procesando Pago...</h2>`;
+            document.getElementById('loadingScreen').innerHTML = `<div class="spinner"></div><h2 class="animate-pulse" style="font-family:'Orbitron'; color:#fff; font-weight:300; font-size:1.2rem; letter-spacing:2px;">Procesando Nueva Orden...</h2>`;
             closeAllModals();
 
             try {
