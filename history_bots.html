@@ -88,7 +88,7 @@
     </div>
 
     <div class="main-container" id="botsContainer">
-        </div>
+    </div>
 
     <script type="module">
         import { auth, db, onAuthStateChanged, ref, onValue, get, child } from './firebase-config.js';
@@ -109,7 +109,6 @@
                 return;
             }
 
-            // Ordenar por el más reciente
             orders.sort((a, b) => b.timestamp - a.timestamp);
 
             orders.forEach(order => {
@@ -117,7 +116,8 @@
                 let statusClass = '';
                 let statusHtml = '';
                 
-                if (order.status === 'Pendiente') {
+                // LÓGICA ARREGLADA: Acepta Pendiente y Notificado para mostrar al cliente que sigue pendiente
+                if (order.status === 'Pendiente' || order.status.includes('Notificado')) {
                     statusClass = 'status-pendiente';
                     statusHtml = `
                         <div class="status-content yellow">
