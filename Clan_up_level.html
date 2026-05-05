@@ -3,72 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clan Level UP - LUCK XIT OFC</title>
+    <title>Clan Level UP - Servicios</title>
     
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-        * { user-select: none; box-sizing: border-box; }
-
-        :root { 
-            --neon-purple: #bc13fe; 
-            --neon-red: #ff073a; 
-            --neon-cyan: #00f3ff; 
-            --neon-green: #00ffcc; 
-            --glass-bg: rgba(15, 0, 25, 0.7); 
-            --sidebar-bg: rgba(5, 10, 20, 0.95); 
+        * { 
+            user-select: none; 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Inter', sans-serif; 
         }
 
-        body { background-color: #020005; color: white; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        body { 
+            /* Aquí pones la URL de tu foto completa bien mela */
+            background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
 
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes gradientScroll { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        /* Capa oscura para que el texto sea siempre legible sobre cualquier foto */
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: -1;
+        }
 
-        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #020202; } ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; box-shadow: 0 0 10px var(--neon-cyan); }
+        ::-webkit-scrollbar { width: 8px; } 
+        ::-webkit-scrollbar-track { background: transparent; } 
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-        .top-bar { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 900px; background: rgba(5, 10, 20, 0.85); backdrop-filter: blur(15px); border: 1px solid var(--neon-cyan); border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); z-index: 100; }
-        .menu-btn { background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan); border-radius: 8px; padding: 6px 10px; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
-        .menu-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px var(--neon-cyan); background: rgba(0, 243, 255, 0.1); }
-        .top-bar-right { display: flex; align-items: center; gap: 10px; }
-        .badge { display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-family: 'Poppins', sans-serif; color: #aaa; white-space: nowrap; }
-        .badge.green i { color: var(--neon-green); } .badge.green span { color: var(--neon-green); }
+        /* Barra Superior Profesional */
+        .top-bar { 
+            position: fixed; 
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 95%; 
+            max-width: 1000px; 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            padding: 12px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
+            z-index: 100; 
+        }
+
+        .menu-btn { 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: #fff; 
+            border-radius: 10px; 
+            padding: 8px 12px; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+        }
+        .menu-btn:hover { background: rgba(255,255,255,0.15); }
         
-        .main-container { width: 95%; max-width: 500px; margin: 90px auto 30px auto; z-index: 10; animation: popIn 0.6s ease-out; text-align: center; }
-        .header-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin: 0 0 5px 0; background: linear-gradient(90deg, var(--neon-cyan), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; letter-spacing: 2px; }
-
-        .cyber-box { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-left: 3px solid var(--neon-cyan); border-radius: 10px; padding: 15px; margin-bottom: 15px; transition: 0.3s; text-align: left;}
-        .cyber-box:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.1); }
-        .cyber-box-title { color: #aaa; font-size: 0.75rem; text-align: left; margin-bottom: 10px; font-weight: bold; font-family: 'Orbitron'; letter-spacing: 1px; }
+        .top-bar-right { display: flex; align-items: center; gap: 15px; }
+        .badge { 
+            display: flex; align-items: center; gap: 8px; 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-size: 0.9rem; 
+            color: #cbd5e1; 
+        }
+        .badge.green { border-color: rgba(52, 211, 153, 0.3); color: #fff; }
+        .badge.green i, .badge.green span { color: #34d399; font-weight: 600; }
         
-        .input-group { margin-bottom: 12px; text-align: left; }
-        .input-group label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 5px; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; outline: none; font-family: inherit; transition: 0.3s; }
-        .input-group input:focus { border-color: var(--neon-cyan); transform: scale(1.02); box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); background: rgba(0, 243, 255, 0.05); }
+        /* Contenedor Principal */
+        .main-container { 
+            width: 95%; 
+            max-width: 800px; 
+            margin: 100px auto 40px auto; 
+            z-index: 10; 
+            text-align: center; 
+        }
+
+        .header-title { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            margin-bottom: 10px; 
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        /* Grid de Planes */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            padding: 25px 20px; 
+            transition: all 0.3s ease; 
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .glass-card:hover { 
+            background: rgba(255, 255, 255, 0.05); 
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
         
-        .btn-action { width: 100%; padding: 15px; border: none; border-radius: 8px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 1rem;}
-        .btn-action:hover:not(:disabled) { box-shadow: 0 0 20px var(--neon-cyan); transform: scale(1.03); letter-spacing: 1px; }
-        .btn-action:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-cancel { width: 100%; background: transparent; border: 1px solid #444; color: #888; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .btn-cancel:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.1); }
+        .plan-price { font-size: 2rem; font-weight: 700; color: #fff; margin-bottom: 15px; }
+        .plan-price span { font-size: 1rem; color: #64748b; font-weight: 400; }
+        
+        .plan-desc { color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 25px; flex-grow: 1; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 2000; }
-        .modal-box { background: linear-gradient(145deg, #0a0a0a, #050505); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid var(--neon-cyan); text-align: center; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 0 30px rgba(0, 243, 255, 0.1) inset; }
-        .modal-overlay[style*="display: flex"] .modal-box { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        /* Botones y Formularios */
+        .btn-primary { 
+            width: 100%; 
+            padding: 14px; 
+            background: #2563eb; 
+            color: white;
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 1rem;
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px;
+        }
+        .btn-primary:hover:not(:disabled) { background: #1d4ed8; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        .btn-cancel { 
+            width: 100%; 
+            background: transparent; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: #94a3b8; 
+            padding: 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            margin-top: 12px;
+            font-weight: 600;
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
-        .warning-box { background: rgba(255, 7, 58, 0.1); border-left: 4px solid var(--neon-red); padding: 12px; border-radius: 5px; font-size: 0.85rem; margin-bottom: 15px; color: #ddd; text-align: left; }
-        .offer-price { font-family: 'Orbitron'; color: var(--neon-green); font-size: 1.5rem; font-weight: bold; margin-top: 5px; text-shadow: 0 0 8px rgba(0,255,204,0.5); }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 8px; font-weight: 600; }
+        .input-group input { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: white; 
+            outline: none; 
+            font-size: 1rem;
+            transition: all 0.3s ease; 
+        }
+        .input-group input:focus { border-color: #3b82f6; background: rgba(0,0,0,0.5); }
+
+        /* Modales */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(10px); 
+            display: none; justify-content: center; align-items: center; z-index: 2000; 
+            opacity: 0; animation: fadeIn 0.3s forwards;
+        }
+        .modal-box { 
+            background: rgba(15, 23, 42, 0.95); 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 90%; 
+            max-width: 400px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            text-align: center; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            animation: scaleUp 0.3s forwards;
+        }
+        
+        .warning-box { 
+            background: rgba(245, 158, 11, 0.1); 
+            border-left: 4px solid #f59e0b; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 0.85rem; 
+            margin: 20px 0; 
+            color: #fcd34d; 
+            text-align: left; 
+            line-height: 1.5;
+        }
+
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0f172a; z-index: 9999; 
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes scaleUp { to { transform: scale(1); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="loadingScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#020005; z-index:9999; display:flex; justify-content:center; align-items:center;">
-        <h2 style="font-family:'Orbitron'; color:var(--neon-cyan); text-shadow:0 0 15px var(--neon-cyan); animation:popIn 1s infinite alternate;">Sincronizando...</h2>
-    </div>
+    <div class="bg-overlay"></div>
 
-    <canvas id="particle-canvas"></canvas>
+    <div id="loadingScreen" class="loading-screen">
+        <h2 class="animate-pulse" style="color: #fff; font-weight: 300;">Sincronizando Sistema...</h2>
+    </div>
 
     <div class="top-bar">
         <div class="top-bar-left">
@@ -81,43 +253,61 @@
     </div>
 
     <div class="main-container" id="mainPanel" style="display: none;">
-        <img src="Logo/imagenclan.png" alt="Clan Logo" style="width: 120px; height: 120px; border-radius: 15px; border: 2px solid var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); margin-bottom: 15px; object-fit: cover;">
         
-        <h1 class="header-title">CLAN LEVEL UP</h1>
-        <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">El camino más rápido al nivel máximo.</p>
+        <h1 class="header-title">Servicios de Bots</h1>
+        <p class="header-subtitle">Selecciona el plan que mejor se adapte a tu situación actual.</p>
 
-        <div class="cyber-box" style="border-left-color: var(--neon-cyan);">
-            <div class="cyber-box-title" style="color: var(--neon-cyan);">DETALLES DEL SERVICIO</div>
-            <p style="margin: 5px 0; font-size: 0.9rem;"><i class='bx bx-time-five' style="color: var(--neon-cyan);"></i> <b>Duración:</b> 8 Horas continuas.</p>
-            <p style="margin: 5px 0; font-size: 0.9rem;"><i class='bx bx-bot' style="color: var(--neon-cyan);"></i> <b>Potencia:</b> 4 Bots activos jugando.</p>
-            <p style="margin: 5px 0; font-size: 0.9rem;"><i class='bx bx-shield-quarter' style="color: var(--neon-cyan);"></i> <b>Seguridad:</b> 100% Anti-Ban.</p>
-            <div style="text-align: center; margin-top: 15px;">
-                <p class="offer-price">$5.00 USD</p>
+        <div class="plans-grid">
+            
+            <div class="glass-card">
+                <div>
+                    <div class="plan-price">$3 <span>USD</span></div>
+                    <p class="plan-desc">Para los que están conscientes del problema y para que no pidan nuevos bots.</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modalClanPurchase', 3, 'Plan Consciente - $3')">
+                    Seleccionar Plan
+                </button>
             </div>
-        </div>
 
-        <button class="btn-action" style="background: linear-gradient(90deg, #008080, var(--neon-cyan), #008080); background-size: 200% auto; animation: gradientScroll 3s linear infinite; color: #000;" onclick="openModal('modalClanPurchase')">
-            <i class='bx bx-cart-add'></i> CONTRATAR SERVICIO
-        </button>
+            <div class="glass-card" style="border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.05);">
+                <div>
+                    <div class="plan-price" style="color: #60a5fa;">$5 <span>USD</span></div>
+                    <p class="plan-desc">Para los que compran y se les banean los bots, se les vuelve a activar hasta que les cumpla con el tiempo comprado.</p>
+                </div>
+                <button class="btn-primary" style="background: #3b82f6;" onclick="openModal('modalClanPurchase', 5, 'Plan Reactivación - $5')">
+                    Seleccionar Plan
+                </button>
+            </div>
+
+            <div class="glass-card">
+                <div>
+                    <div class="plan-price">$10 <span>USD</span></div>
+                    <p class="plan-desc">Si los bots son baneados, se les activa otras 8 horas por ser buenos clientes de 10$ 😁</p>
+                </div>
+                <button class="btn-primary" onclick="openModal('modalClanPurchase', 10, 'Plan Cliente VIP - $10')">
+                    Seleccionar Plan
+                </button>
+            </div>
+
+        </div>
     </div>
 
     <div class="modal-overlay" id="modalClanPurchase">
-        <div class="modal-box" style="border-color: var(--neon-cyan);">
-            <h3 style="font-family:'Orbitron'; color: var(--neon-cyan);"><i class='bx bx-radar'></i> Activar Operación</h3>
+        <div class="modal-box">
+            <h3 style="color: #fff; font-size: 1.3rem; margin-bottom: 5px;">Confirmar Operación</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem;" id="modalSelectedPlanText">Plan seleccionado</p>
             
             <div class="warning-box">
-                ⚠️ <b>ATENCIÓN:</b> Para que nuestros bots puedan ingresar, debes configurar tu clan temporalmente en <b>Predeterminado</b> y activar la <b>Auto Aprobación</b>.
+                <i class='bx bx-error-circle'></i> <b>ATENCIÓN:</b> Para que los bots ingresen, configura tu clan en <b>Predeterminado</b> y activa la <b>Auto Aprobación</b>.
             </div>
 
-            <div class="cyber-box" style="border-left-color: var(--neon-cyan);">
-                <div class="input-group">
-                    <label>ID de tu Clan</label>
-                    <input type="number" id="inputClanId" placeholder="Ej: 123456789" autocomplete="off">
-                </div>
+            <div class="input-group">
+                <label>ID de tu Clan</label>
+                <input type="number" id="inputClanId" placeholder="Ej: 123456789" autocomplete="off">
             </div>
 
-            <button id="btnConfirmPurchase" class="btn-action" style="background: var(--neon-cyan); color: #000;" onclick="funcProcessPurchase()">
-                <i class='bx bx-check'></i> CONFIRMAR PAGO ($5.00)
+            <button id="btnConfirmPurchase" class="btn-primary" onclick="funcProcessPurchase()">
+                <i class='bx bx-check-shield'></i> CONFIRMAR PAGO <span id="modalPriceLabel">($0)</span>
             </button>
             <button class="btn-cancel" onclick="closeAllModals()">Cancelar</button>
         </div>
@@ -128,6 +318,10 @@
 
         let currentUserUid = null;
         let userData = null;
+        
+        // Variables dinámicas para el plan seleccionado
+        let currentSelectedPrice = 0;
+        let currentSelectedProduct = '';
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -146,17 +340,26 @@
                         window.location.href = "login.html";
                     }
                 } catch (error) {
-                    document.getElementById('loadingScreen').innerHTML = `<h2 style="color:red; font-family:'Orbitron';">ERROR: ${error.message}</h2>`;
+                    document.getElementById('loadingScreen').innerHTML = `<h2 style="color:#ef4444; font-weight:300;">ERROR: ${error.message}</h2>`;
                 }
             } else { 
                 window.location.href = "login.html"; 
             }
         });
 
-        window.openModal = (id) => {
+        // Modificamos openModal para que reciba el precio y el nombre del plan
+        window.openModal = (id, price, productName) => {
+            currentSelectedPrice = price;
+            currentSelectedProduct = productName;
+            
             document.getElementById('inputClanId').value = ''; 
-            document.getElementById(id).style.display = 'flex';
+            document.getElementById('modalSelectedPlanText').innerText = productName;
+            document.getElementById('modalPriceLabel').innerText = `($${price}.00)`;
+            
+            const modal = document.getElementById(id);
+            modal.style.display = 'flex';
         };
+
         window.closeAllModals = () => {
             document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
         };
@@ -167,7 +370,8 @@
             const clanId = document.getElementById('inputClanId').value.trim();
             if (!clanId) return alert("❌ Debes ingresar el ID de tu clan.");
 
-            const price = 5.00;
+            // Usar el precio dinámico guardado
+            const price = currentSelectedPrice;
             const currentBalance = parseFloat(userData.balance || 0);
 
             if (currentBalance < price) {
@@ -181,7 +385,7 @@
             btnConfirm.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> PROCESANDO...";
 
             document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('loadingScreen').innerHTML = `<h2 style="font-family:'Orbitron'; color:var(--neon-cyan); animation:popIn 1s infinite alternate;">Procesando Pago...</h2>`;
+            document.getElementById('loadingScreen').innerHTML = `<h2 class="animate-pulse" style="color:#fff; font-weight:300;">Procesando Pago...</h2>`;
             closeAllModals();
 
             try {
@@ -195,7 +399,7 @@
                 const historyKey = push(ref(db, `users/${currentUserUid}/history`)).key;
                 updates[`users/${currentUserUid}/history/${historyKey}`] = {
                     date: now,
-                    details: `Clan Level UP (ID: ${clanId})`,
+                    details: `${currentSelectedProduct} (ID: ${clanId})`,
                     price: price,
                     refunded: false,
                     status: 'Completado',
@@ -207,8 +411,8 @@
                     uid: currentUserUid,
                     username: userData.username,
                     waNumber: userData.waNumber || 'No vinculado',
-                    clanId: clanId, // Aquí se envía correctamente el ID del clan digitado
-                    product: 'Clan Level UP (8H - 4 Bots)',
+                    clanId: clanId, 
+                    product: currentSelectedProduct,
                     price: price,
                     timestamp: now,
                     status: 'Pendiente',
@@ -222,28 +426,20 @@
                 
                 document.getElementById('loadingScreen').style.display = 'none';
                 
-                // RESTAURAR BOTÓN EN CASO DE ÉXITO (Aunque se oculte el modal, es buena práctica)
                 btnConfirm.disabled = false;
-                btnConfirm.innerHTML = "<i class='bx bx-check'></i> CONFIRMAR PAGO ($5.00)";
+                btnConfirm.innerHTML = `<i class='bx bx-check-shield'></i> CONFIRMAR PAGO ($${price})`;
 
-                alert(`✅ ¡Pago exitoso!\n\nSe descontaron $${price.toFixed(2)} USD.\n\nTu orden ha sido enviada automáticamente a los administradores. Nos contactaremos en breve por WhatsApp para iniciar los bots en tu clan.`);
+                alert(`✅ ¡Pago exitoso!\n\nSe descontaron $${price.toFixed(2)} USD.\n\nTu orden ha sido enviada automáticamente a los administradores.`);
                 
             } catch (error) {
                 document.getElementById('loadingScreen').style.display = 'none';
                 
-                // SI HAY ERROR, RESTAURAMOS EL BOTÓN PARA QUE PUEDA INTENTAR DE NUEVO
                 btnConfirm.disabled = false;
-                btnConfirm.innerHTML = "<i class='bx bx-check'></i> CONFIRMAR PAGO ($5.00)";
+                btnConfirm.innerHTML = `<i class='bx bx-check-shield'></i> CONFIRMAR PAGO ($${price})`;
                 
                 alert("❌ Ocurrió un error en la base de datos: " + error.message);
             }
         };
-
-        const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); let width, height, particles = [];
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; } window.addEventListener('resize', resize); resize();
-        class Particle { constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2 + 0.5; this.color = Math.random() > 0.5 ? 'rgba(188, 19, 254, ' : 'rgba(0, 243, 255, '; this.alpha = Math.random() * 0.5 + 0.1; } update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color + this.alpha + ')'; ctx.fill(); } }
-        for (let i = 0; i < 50; i++) particles.push(new Particle());
-        function animate() { ctx.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); } animate();
     </script>
 </body>
 </html>
