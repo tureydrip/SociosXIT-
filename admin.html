@@ -35,6 +35,8 @@
         @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
         @keyframes gradientScroll { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes bouncyIn { to { opacity: 1; transform: scale(1) translateY(0); } }
 
         #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
@@ -141,6 +143,37 @@
         .color-blue .card-icon { color: #3b3dff; background: rgba(59, 61, 255, 0.1); }
         .color-blue:hover { border-color: #3b3dff; box-shadow: 0 5px 25px rgba(59, 61, 255, 0.3); }
         .color-blue:hover .card-info h3 { color: #3b3dff; }
+        .color-green .card-icon { color: var(--neon-green); background: rgba(0, 255, 204, 0.1); }
+        .color-green:hover { border-color: var(--neon-green); box-shadow: 0 5px 25px rgba(0, 255, 204, 0.3); }
+        .color-green:hover .card-info h3 { color: var(--neon-green); }
+
+        /* MODALES ADMIN */
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); 
+            display: none; justify-content: center; align-items: center; z-index: 2000; 
+            opacity: 0; animation: fadeIn 0.4s forwards;
+        }
+        .modal-box { 
+            background: rgba(15, 20, 30, 0.95); padding: 30px; border-radius: 20px; 
+            width: 95%; max-width: 800px; border: 1px solid rgba(255,255,255,0.1); 
+            text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.8);
+            transform: scale(0.8) translateY(30px); opacity: 0;
+            animation: bouncyIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.1s;
+            max-height: 85vh; overflow-y: auto;
+        }
+        
+        .bot-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; margin-top: 15px; }
+        .bot-table th { padding: 12px; background: rgba(255,255,255,0.05); color: var(--neon-cyan); font-family: 'Orbitron'; font-size: 0.8rem; letter-spacing: 1px; }
+        .bot-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; }
+        .bot-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .table-action-btn { padding: 8px 12px; border-radius: 8px; border: none; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 0.8rem;}
+        .btn-activate { background: var(--neon-green); color: #000; box-shadow: 0 0 10px rgba(0, 255, 204, 0.4); }
+        .btn-activate:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-green); }
+
+        .btn-cancel { width: 100%; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 14px; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; font-weight: 600; font-family: 'Poppins'; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateY(-2px); border-color: rgba(255,255,255,0.3); }
     </style>
 </head>
 <body oncontextmenu="return false;"> 
@@ -198,11 +231,19 @@
                 </div>
             </div>
 
+            <div class="admin-card color-green" onclick="openBotsModal()">
+                <div class="card-icon"><i class='bx bx-bot'></i></div>
+                <div class="card-info">
+                    <h3>Gestión de Bots</h3>
+                    <p>Activa bots en clanes (En vivo).</p>
+                </div>
+            </div>
+
             <div class="admin-card color-purple" onclick="window.location.href='admin_operaciones.html'">
                 <div class="card-icon"><i class='bx bx-server'></i></div>
                 <div class="card-info">
                     <h3>Panel de Operaciones</h3>
-                    <p>Tienda, usuarios y finanzas.</p>
+                    <p>Gestión exclusiva producto: FLUORITE IPA.</p>
                 </div>
             </div>
 
@@ -217,8 +258,39 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="botsModal">
+        <div class="modal-box">
+            <h3 style="color: var(--neon-cyan); font-family: 'Orbitron'; font-size: 1.5rem; margin-bottom: 5px;">
+                <i class='bx bx-radar bx-flashing'></i> Radar de Bots
+            </h3>
+            <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 20px;">Activa las peticiones de los usuarios para que su panel se actualice al instante.</p>
+            
+            <div style="overflow-x: auto;">
+                <table class="bot-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Clan ID</th>
+                            <th>Plan</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="botsTableBody">
+                        <tr><td colspan="5" style="text-align:center; padding: 20px;"><i class='bx bx-loader-alt bx-spin'></i> Cargando datos...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <button class="btn-cancel" onclick="closeBotsModal()">Cerrar Radar</button>
+        </div>
+    </div>
+
     <script type="module">
         import { auth, db, onAuthStateChanged, signOut, ref, get, child, update, set } from './firebase-config.js';
+        
+        // Importación de onValue para escuchar peticiones de bots en vivo
+        import { onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         let adminUser = null; 
         let isSuperAdmin = false;
@@ -270,6 +342,7 @@
                         
                         loadStats();
                         checkMaintenance();
+                        loadBotOrders(); // Iniciar monitoreo de bots en vivo
                     } else { 
                         loadingText.style.color = "var(--neon-red)";
                         loadingText.innerText = "ACCESO DENEGADO";
@@ -300,9 +373,73 @@
             const snap = await get(ref(db, 'settings/maintenance')); await set(ref(db, 'settings/maintenance'), !(snap.val() || false)); checkMaintenance(); alert("Modo de sistema actualizado."); 
         };
 
+        // --- SISTEMA DE GESTIÓN DE BOTS ---
+        window.openBotsModal = () => { document.getElementById('botsModal').style.display = 'flex'; };
+        window.closeBotsModal = () => { 
+            const m = document.getElementById('botsModal');
+            m.style.opacity = '0';
+            setTimeout(() => { m.style.display = 'none'; m.style.opacity = '1'; }, 300);
+        };
+
+        window.activateBot = async (orderId) => {
+            if(confirm("¿Confirmas que los bots ya están ingresando al clan del usuario? (Su panel cambiará a activo de inmediato)")) {
+                try {
+                    await update(ref(db, `clan_level_up_orders/${orderId}`), { status: 'Activo' });
+                } catch(e) {
+                    alert("Error al activar: " + e.message);
+                }
+            }
+        };
+
+        function loadBotOrders() {
+            const ordersRef = ref(db, 'clan_level_up_orders');
+            onValue(ordersRef, (snapshot) => {
+                const tbody = document.getElementById('botsTableBody');
+                tbody.innerHTML = '';
+                
+                if(snapshot.exists()) {
+                    let orders = [];
+                    snapshot.forEach(child => { orders.push({id: child.key, ...child.val()}); });
+                    
+                    // Ordenar: Las más nuevas arriba
+                    orders.sort((a,b) => b.timestamp - a.timestamp);
+                    
+                    orders.forEach(order => {
+                        let statusHtml = '';
+                        let btnHtml = '';
+                        
+                        if(order.status === 'Pendiente') {
+                            statusHtml = `<span style="color:#f59e0b;"><i class='bx bx-time-five'></i> Pendiente</span>`;
+                            btnHtml = `<button class="table-action-btn btn-activate" onclick="activateBot('${order.id}')"><i class='bx bx-check-shield'></i> Activar</button>`;
+                        } else if (order.status === 'Activo') {
+                            statusHtml = `<span style="color:var(--neon-green);"><i class='bx bx-radar'></i> Activo</span>`;
+                            btnHtml = `<span style="color:#64748b; font-size:0.8rem;"><i class='bx bx-check-double'></i> Operando</span>`;
+                        } else {
+                            statusHtml = `<span style="color:#64748b;">${order.status}</span>`;
+                            btnHtml = `-`;
+                        }
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong style="color: #fff;">${order.username}</strong><br><span style="color:#888; font-size:0.75rem;">${order.waNumber || 'Sin WA'}</span></td>
+                                <td style="color:var(--neon-cyan); font-weight:600;">${order.clanId}</td>
+                                <td style="font-size:0.8rem; color:#cbd5e1;">${order.product}</td>
+                                <td>${statusHtml}</td>
+                                <td>${btnHtml}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:#64748b;">No hay órdenes de bots registradas.</td></tr>`;
+                }
+            });
+        }
+
+        // --- SISTEMA DE MENÚ LATERAL Y SALIR ---
         const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebarOverlay');
         document.getElementById('openMenuBtn').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
         document.getElementById('closeMenuBtn').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
         document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> window.location.href="login.html");
 
         // SISTEMA DE PARTÍCULAS
