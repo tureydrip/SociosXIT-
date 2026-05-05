@@ -483,9 +483,7 @@
 
     <script type="module">
         import { auth, db, onAuthStateChanged, signOut, ref, get, child, update, push } from './firebase-config.js';
-        
-        // Importación extra necesaria para leer datos en tiempo real y hacer consultas
-        import { onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         let currentUserUid = null;
         let userData = null;
@@ -513,12 +511,11 @@
                             document.getElementById('adminMenuBtn').style.display = 'flex';
                         }
                         
-                        // Configurar enlace de WhatsApp para reporte de baneos
                         const waLink = `https://wa.me/573142369516?text=Hola,%20soy%20el%20usuario%20${userData.username}.%20Mis%20bots%20del%20clan%20fueron%20baneados.`;
                         document.getElementById('btnBanWhatsapp').href = waLink;
 
-                        // ESCUCHADOR EN TIEMPO REAL PARA EL PANEL DE BOTS (Solicita los pedidos de este usuario)
-                        const ordersRef = query(ref(db, 'clan_level_up_orders'), orderByChild('uid'), equalTo(user.uid));
+                        // ESCUCHADOR EN VIVO (Filtrado por JavaScript para evitar bloqueos de reglas de Firebase)
+                        const ordersRef = ref(db, 'clan_level_up_orders');
                         
                         onValue(ordersRef, (orderSnapshot) => {
                             const panel = document.getElementById('activeBotsPanel');
@@ -528,16 +525,20 @@
                             
                             let hasActiveOrder = false;
                             let latestOrder = null;
+                            let highestTime = 0;
 
                             if (orderSnapshot.exists()) {
-                                const orders = [];
                                 orderSnapshot.forEach(childSnap => {
-                                    orders.push({ id: childSnap.key, ...childSnap.val() });
+                                    const order = childSnap.val();
+                                    
+                                    // Filtramos solo las órdenes de este usuario en específico
+                                    if (order.uid === currentUserUid) {
+                                        if (order.timestamp > highestTime) {
+                                            highestTime = order.timestamp;
+                                            latestOrder = order;
+                                        }
+                                    }
                                 });
-                                
-                                // Ordenar de la más nueva a la más antigua
-                                orders.sort((a, b) => b.timestamp - a.timestamp);
-                                latestOrder = orders[0];
 
                                 if (latestOrder && (latestOrder.status === 'Pendiente' || latestOrder.status === 'Activo')) {
                                     hasActiveOrder = true;
