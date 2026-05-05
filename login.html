@@ -570,15 +570,22 @@
                 loaderMsg.innerText = isLogin ? "CONECTANDO AL SERVIDOR..." : "CREANDO PERFIL...";
                 loaderOverlay.classList.add('active');
 
-                // AQUÍ ESTÁ LA MAGIA DEL REDIRECT DE LUCK XIT OFC
+                // === AQUÍ ESTÁ LA MAGIA DEL REDIRECT DE LUCK XIT OFC ===
                 setTimeout(() => {
+                    // Primero revisa si vienes de la página de bots usando el localStorage
+                    const redirectLocal = localStorage.getItem('redirectSociosXit');
+                    
+                    // También mantiene el sistema por URL por si lo usas en el futuro
                     const urlParams = new URLSearchParams(window.location.search);
                     const redirectUrl = urlParams.get('redirect');
                     
-                    if (redirectUrl) {
+                    if (redirectLocal) {
+                        localStorage.removeItem('redirectSociosXit'); // Limpia la memoria para que no se quede en bucle
+                        window.location.href = redirectLocal;
+                    } else if (redirectUrl) {
                         window.location.href = redirectUrl;
                     } else {
-                        window.location.href = "dashboard.html";
+                        window.location.href = "dashboard.html"; // Redirección normal si entraste desde el inicio
                     }
                 }, 2000);
 
