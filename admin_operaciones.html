@@ -146,11 +146,6 @@
                 <div class="card-icon"><i class='bx bx-money-withdraw'></i></div>
                 <div class="card-info"><h3>Añadir Saldo</h3><p>Dar USD directo a un usuario.</p></div>
             </div>
-            
-            <div class="admin-card color-red" onclick="openModal('modalDeductBalance')">
-                <div class="card-icon"><i class='bx bx-trending-down'></i></div>
-                <div class="card-info"><h3>Descontar Saldo</h3><p>Restar USD a un usuario.</p></div>
-            </div>
 
             <div class="admin-card color-purple" onclick="openModal('modalTransferUser')">
                 <div class="card-icon"><i class='bx bx-transfer'></i></div>
@@ -382,18 +377,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalDeductBalance">
-        <div class="modal-box" style="border-color: var(--neon-red);">
-            <h3 style="font-family:'Orbitron'; color: var(--neon-red);"><i class='bx bx-trending-down'></i> Descuento de Capital</h3>
-            <div class="cyber-box" style="border-left-color: var(--neon-red); background: rgba(255,0,0,0.02);">
-                <div class="input-group"><label>ID de Usuario (Username)</label><input type="text" id="deductUser" placeholder="Ej: sebasxit" autocomplete="off"></div>
-                <div class="input-group"><label>Monto a descontar (USD)</label><input type="number" id="deductAmt" step="0.1" placeholder="0.00"></div>
-            </div>
-            <button class="btn-action" style="background: linear-gradient(90deg, #80001d, var(--neon-red), #80001d); color: white;" onclick="funcDeductBalance()"><i class='bx bx-minus-circle'></i> EJECUTAR DESCUENTO</button>
-            <button class="btn-cancel" onclick="closeAllModals()">Cancelar Operación</button>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modalTransferUser">
         <div class="modal-box" style="border-color: var(--neon-purple);">
             <h3 style="font-family:'Orbitron'; color: var(--neon-purple);"><i class='bx bx-transfer'></i> Migración de Datos</h3>
@@ -434,7 +417,7 @@
         let adminUser = null; 
         let isSuperAdmin = false;
         let currentAdminIp = "0.0.0.0";
-        let loadedProductsData = {}; 
+        let loadedProductsData = {}; // Para la edición de productos
 
         async function logAdminAction(actionType, targetUsername, details) {
             try {
@@ -635,7 +618,7 @@
             try { await set(ref(db, `config/countries/${code}`), { name, flag, currency, rate, paymentMethods: cleanBanksList }); alert(`✅ Guardado.`); loadConfiguredCountries(); clearPaymentInputs(); } catch(e) { alert("❌ Error: " + e.message); }
         };
 
-        // RECARGAS
+        // RECARGAS Y WHATSAPP
         window.openRechargesModal = async () => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.recharges)) return alert("❌ No tienes permiso.");
             openModal('modalRecharges'); const container = document.getElementById('rechargesList'); container.innerHTML = "<p style='text-align:center; color:#aaa;'>Cargando...</p>";
@@ -653,6 +636,7 @@
                 });
             } catch(e) { container.innerHTML = `<p style='color:red;'>Error: ${e.message}</p>`; }
         };
+
         window.approveRecharge = async (receiptId, uid, amountUsd, username) => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.recharges)) return;
             if(!confirm(`¿Aprobar $${amountUsd} USD a ${username}?`)) return;
@@ -660,13 +644,35 @@
                 const uSnap = await get(ref(db, `users/${uid}`)); const targetData = uSnap.val(); let currentBal = targetData ? parseFloat(targetData.balance || 0) : 0;
                 if (!isSuperAdmin && targetData && targetData.lastIp === currentAdminIp) { alert("Error 404 de autenticacion contacta al admin para informar sobre el error +573142369516"); return; }
                 const updates = {}; updates[`users/${uid}/balance`] = currentBal + amountUsd; updates[`users/${uid}/recharges/${receiptId}/status`] = 'approved'; updates[`users/${uid}/recharges/${receiptId}/date`] = Date.now(); updates[`pending_receipts/${receiptId}`] = null; 
-                await update(ref(db), updates); await logAdminAction("Autorización Recarga", username, `Liberó $${amountUsd} USD.`); alert(`✅ Aprobado.`); openRechargesModal();
+                await update(ref(db), updates); await logAdminAction("Autorización Recarga", username, `Liberó $${amountUsd} USD.`); 
+                
+                // NOTIFICACIÓN WHATSAPP APROBADO
+                if (targetData && targetData.whatsapp) {
+                    const msgAprobado = `✅ *RECARGA APROBADA*\n\n¡Hola ${username}!\nTu recarga de *$${amountUsd} USD* ha sido verificada y tu saldo ha sido actualizado con éxito.\n\n¡Gracias por preferir LUCK XIT OFC! 🚀`;
+                    await push(ref(db, 'whatsapp_control/messages'), { number: targetData.whatsapp, message: msgAprobado, timestamp: Date.now() });
+                }
+                
+                alert(`✅ Aprobado.`); openRechargesModal();
             } catch(e) { alert("❌ Error: " + e.message); }
         };
+
         window.rejectRecharge = async (receiptId, uid) => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.recharges)) return;
             if(!confirm("¿Bloquear ticket?")) return;
-            try { const updates = {}; updates[`users/${uid}/recharges/${receiptId}/status`] = 'rejected'; updates[`users/${uid}/recharges/${receiptId}/date`] = Date.now(); updates[`pending_receipts/${receiptId}`] = null; await update(ref(db), updates); alert("❌ Denegado."); openRechargesModal(); } catch(e) { alert("❌ Error: " + e.message); }
+            try { 
+                const uSnap = await get(ref(db, `users/${uid}`)); const targetData = uSnap.val(); 
+                const username = targetData ? targetData.username : 'Usuario';
+                const updates = {}; updates[`users/${uid}/recharges/${receiptId}/status`] = 'rejected'; updates[`users/${uid}/recharges/${receiptId}/date`] = Date.now(); updates[`pending_receipts/${receiptId}`] = null; 
+                await update(ref(db), updates); 
+                
+                // NOTIFICACIÓN WHATSAPP RECHAZADO
+                if (targetData && targetData.whatsapp) {
+                    const msgRechazado = `❌ *RECARGA RECHAZADA*\n\n¡Hola ${username}!\nTu comprobante de recarga ha sido revisado y lamentablemente fue denegado.\n\nPor favor contacta al soporte si crees que esto es un error.`;
+                    await push(ref(db, 'whatsapp_control/messages'), { number: targetData.whatsapp, message: msgRechazado, timestamp: Date.now() });
+                }
+
+                alert("❌ Denegado."); openRechargesModal(); 
+            } catch(e) { alert("❌ Error: " + e.message); }
         };
 
         // PRODUCTOS
@@ -677,6 +683,7 @@
             try { const newProdRef = push(ref(db, 'products')); const durId = push(ref(db, `products/${newProdRef.key}/durations`)).key; await set(newProdRef, { name, category: cat }); await set(ref(db, `products/${newProdRef.key}/durations/${durId}`), { duration: dur, price, warranty: warr }); alert("✅ Creado."); closeAllModals(); } catch(e) { alert("❌ Error: " + e.message); }
         };
         
+        // --- NUEVAS FUNCIONES: EDITAR PRODUCTO Y DURACIÓN ---
         window.openEditProductModal = async () => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.products)) return alert("❌ Sin permiso.");
             const select = document.getElementById('editProdSelect'); select.innerHTML = "<option value=''>Cargando...</option>"; openModal('modalEditProduct');
@@ -784,6 +791,7 @@
                 } catch(e) { alert("❌ Error: " + e.message); }
             }
         };
+        // -----------------------------------------------------------
 
         window.openAddDurationModal = async () => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.products)) return alert("❌ Sin permiso.");
@@ -881,15 +889,8 @@
 
         window.funcDeleteSpecificKey = async (pId, dId, kId) => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.products)) return;
-            const keyInputText = document.getElementById(`input_key_${kId}`).value;
             if(confirm("⚠️ ¿Destruir esta key permanentemente?")) {
                 try {
-                    try {
-                        await navigator.clipboard.writeText(keyInputText);
-                        console.log("Key guardada en el portapapeles.");
-                    } catch (err) {
-                        console.log("No se pudo copiar automáticamente: ", err);
-                    }
                     await set(ref(db, `products/${pId}/durations/${dId}/keys/${kId}`), null);
                     loadKeysList(); 
                 } catch(e) { alert("❌ Error: " + e.message); }
@@ -909,55 +910,6 @@
                 } else { alert("Usuario no existe."); }
             } catch(e) { alert("❌ Error: " + e.message); }
         };
-
-        window.funcDeductBalance = async () => {
-            if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.balance)) return alert("❌ Sin acceso a fondos.");
-            
-            const user = document.getElementById('deductUser').value.trim().toLowerCase(); 
-            const amt = parseFloat(document.getElementById('deductAmt').value); 
-            
-            if(!user || isNaN(amt) || amt <= 0) return alert("❌ Ingresa un usuario válido y un monto mayor a 0.");
-            
-            try {
-                const uSnap = await get(ref(db, 'users')); 
-                let foundId = null, currentB = 0, targetIp = null;
-                
-                uSnap.forEach(u => { 
-                    if(u.val().username && u.val().username.toLowerCase() === user) { 
-                        foundId = u.key; 
-                        currentB = u.val().balance || 0; 
-                        targetIp = u.val().lastIp || "unknown"; 
-                    } 
-                });
-                
-                if(foundId) {
-                    if (!isSuperAdmin && targetIp === currentAdminIp) { 
-                        alert("Error 404 de autenticacion contacta al admin para informar sobre el error +573142369516"); 
-                        return; 
-                    }
-                    
-                    if(currentB < amt) {
-                        if(!confirm(`⚠️ El usuario solo tiene $${currentB.toFixed(2)} USD. Si continúas, su saldo quedará en negativo. ¿Ejecutar?`)) return;
-                    }
-                    
-                    const newBalance = currentB - amt;
-                    
-                    await update(ref(db), { [`users/${foundId}/balance`]: newBalance }); 
-                    await logAdminAction("Descuento Manual", user, `Descontó $${amt} USD.`); 
-                    
-                    alert("✅ Saldo descontado exitosamente."); 
-                    closeAllModals();
-                    
-                    document.getElementById('deductUser').value = '';
-                    document.getElementById('deductAmt').value = '';
-                } else { 
-                    alert("❌ Usuario no existe."); 
-                }
-            } catch(e) { 
-                alert("❌ Error: " + e.message); 
-            }
-        };
-
         window.funcTransferUser = async () => {
             if(!isSuperAdmin && (!adminUser.permissions || !adminUser.permissions.users)) return alert("❌ Bloqueado.");
             const oldU = document.getElementById('transferOldUser').value.trim().toLowerCase(); const newU = document.getElementById('transferNewUser').value.trim().toLowerCase(); if(!oldU || !newU) return alert("❌ Llenar campos."); if(oldU === newU) return alert("❌ Nombres iguales.");
