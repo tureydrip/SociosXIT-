@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial Glory Bots</title>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap');
+
+        :root {
+            --bg-dark: #07080a;
+            --card-bg: rgba(18, 22, 31, 0.65);
+            --neon-blue: #3b82f6;
+            --neon-green: #10b981;
+            --neon-yellow: #f59e0b;
+            --neon-red: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { user-select: none; box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            position: relative; 
+        }
+
+        /* Fondo Gamer Grid + Glow */
+        .bg-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background-image: 
+                radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        /* Navbar Flotante */
+        .top-bar { 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; 
+            background: rgba(15, 20, 30, 0.7); 
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 20px; padding: 12px 20px; 
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .back-btn { 
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-main); 
+            border-radius: 12px; padding: 8px; font-size: 1.5rem; cursor: pointer; transition: all 0.3s ease; 
+            text-decoration: none; display: flex; align-items: center; justify-content: center; height: 40px; width: 40px;
+        }
+        .back-btn:hover { background: rgba(59, 130, 246, 0.2); border-color: var(--neon-blue); color: var(--neon-blue); transform: translateY(-2px); }
+
+        .page-title { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+
+        .main-container { width: 90%; max-width: 800px; margin: 110px auto 40px auto; z-index: 10; display: flex; flex-direction: column; gap: 24px; }
+
+        .empty-state { text-align: center; color: var(--text-muted); padding: 60px 20px; background: var(--card-bg); border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .empty-state i { font-size: 4rem; color: rgba(255,255,255,0.05); margin-bottom: 15px; }
+
+        /* Tarjetas de Bots */
+        .bot-card {
+            background: var(--card-bg); 
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px; padding: 25px; 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3); transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+            animation: fadeInUP 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .bot-card:hover { transform: translateY(-5px); box-shadow: 0 15px 50px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.15); }
+
+        /* Líneas Neón Superiores */
+        .bot-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; transition: 0.3s; }
+        .status-pendiente::before { background: var(--neon-yellow); box-shadow: 0 0 15px var(--neon-yellow); }
+        .status-activo::before { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+        .status-otro::before { background: var(--text-muted); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .clan-info { display: flex; flex-direction: column; gap: 4px; }
+        .clan-id { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--text-main); letter-spacing: 1px;}
+        .plan-name { color: var(--text-muted); font-size: 0.9rem; font-weight: 500;}
+        .card-date { font-size: 0.8rem; color: #475569; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 8px;}
+
+        /* Etiquetas de Estado */
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px; }
+        .badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--neon-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge.success { background: rgba(16, 185, 129, 0.15); color: var(--neon-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge.neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        .status-desc { font-size: 0.95rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 12px; border-left: 2px solid rgba(255,255,255,0.1); }
+
+        /* Botón Baneo Estilo Fantasma */
+        .btn-whatsapp-ban {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 12px; background: transparent; 
+            border: 1px solid rgba(244, 63, 94, 0.3); color: var(--neon-red); 
+            font-size: 0.95rem; font-weight: 600; border-radius: 12px; 
+            text-decoration: none; transition: all 0.3s ease;
+        }
+        .btn-whatsapp-ban:hover { background: rgba(244, 63, 94, 0.1); border-color: var(--neon-red); box-shadow: 0 0 20px rgba(244, 63, 94, 0.2); }
+
+        /* Loading Screen Moderno */
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.4s ease; }
+        .loader-core { width: 60px; height: 60px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--neon-blue); border-bottom-color: var(--neon-blue); animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; margin-bottom: 25px; position: relative; }
+        .loader-core::before { content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; border-radius: 50%; border: 3px solid transparent; border-left-color: var(--neon-green); border-right-color: var(--neon-green); animation: spin 1s linear infinite reverse; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeInUP { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-pulse { animation: textPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; font-family:'Orbitron', sans-serif; font-size: 1rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); }
+        @keyframes textPulse { 0%, 100% { opacity: 1; text-shadow: 0 0 10px var(--neon-blue); } 50% { opacity: 0.3; text-shadow: none; } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="bg-overlay"></div>
+
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loader-core"></div>
+        <div class="animate-pulse">Sincronizando</div>
+    </div>
+
+    <div class="top-bar">
+        <a href="javascript:history.back()" class="back-btn"><i class='bx bx-chevron-left'></i></a>
+        <div class="page-title">Mis Bots</div>
+        <div style="width: 40px;"></div> </div>
+
+    <div class="main-container" id="botsContainer">
+        </div>
+
+    <script type="module">
+        import { auth, db, onAuthStateChanged, ref, onValue, get, child } from './firebase-config.js';
+
+        let currentUserUid = null;
+        let username = "Usuario";
+
+        function renderBots(orders) {
+            const container = document.getElementById('botsContainer');
+            container.innerHTML = '';
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class='bx bx-ghost' style="animation: float 3s ease-in-out infinite;"></i>
+                        <p>No tienes bots activos ni en el historial.</p>
+                        <p style="font-size: 0.85rem; margin-top: 10px;">¡Es hora de subir de nivel!</p>
+                    </div>`;
+                return;
+            }
+
+            orders.sort((a, b) => b.timestamp - a.timestamp);
+
+            orders.forEach((order, index) => {
+                const date = new Date(order.timestamp).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+                
+                let statusClass = '';
+                let statusHtml = '';
+                let badgeHtml = '';
+                
+                if (order.status === 'Pendiente' || order.status.includes('Notificado')) {
+                    statusClass = 'status-pendiente';
+                    badgeHtml = `<span class="badge warning"><i class='bx bx-loader-alt bx-spin'></i> Pendiente</span>`;
+                    statusHtml = `<div class="status-desc">Solicitando permiso al servidor principal. Este proceso de conexión puede tardar hasta 1 hora.</div>`;
+                } else if (order.status === 'Activo') {
+                    statusClass = 'status-activo';
+                    badgeHtml = `<span class="badge success"><i class='bx bx-radar bx-flashing'></i> Activo</span>`;
+                    statusHtml = `<div class="status-desc">Bots en línea. Empezarán a reflejar puntos en el clan después de 15 a 30 minutos.</div>`;
+                } else {
+                    statusClass = 'status-otro';
+                    badgeHtml = `<span class="badge neutral"><i class='bx bx-check-shield'></i> ${order.status}</span>`;
+                    statusHtml = `<div class="status-desc">La orden ha sido procesada o finalizada.</div>`;
+                }
+
+                const waLink = `https://wa.me/573142369516?text=Hola,%20soy%20el%20usuario%20${encodeURIComponent(username)}.%20Mis%20bots%20del%20clan%20ID%20${order.clanId}%20fueron%20baneados.`;
+
+                const card = document.createElement('div');
+                card.className = `bot-card ${statusClass}`;
+                // Añadir un pequeño retraso a la animación basado en el índice
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="clan-info">
+                            <span class="clan-id">ID: ${order.clanId}</span>
+                            <span class="plan-name"><i class='bx bx-package'></i> ${order.product}</span>
+                        </div>
+                        <div class="card-date">${date}</div>
+                    </div>
+                    
+                    ${badgeHtml}
+                    ${statusHtml}
+
+                    <a href="${waLink}" target="_blank" class="btn-whatsapp-ban">
+                        <i class='bx bx-shield-x' style="font-size: 1.2rem;"></i> Reportar Baneo
+                    </a>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+
+                try {
+                    const snapshot = await get(child(ref(db), `users/${user.uid}`));
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        username = userData.username || 'Usuario';
+                    }
+                } catch (error) {
+                    console.error("Error obteniendo el nombre de usuario:", error);
+                }
+
+                const ordersRef = ref(db, 'clan_level_up_orders');
+                
+                onValue(ordersRef, (snapshot) => {
+                    const myOrders = [];
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnap => {
+                            const data = childSnap.val();
+                            if (data.uid === currentUserUid) {
+                                myOrders.push(data);
+                            }
+                        });
+                    }
+                    
+                    renderBots(myOrders);
+
+                    // Ocultar pantalla de carga con estilo
+                    setTimeout(() => {
+                        const loader = document.getElementById('loadingScreen');
+                        if(loader) {
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.style.display = 'none', 400);
+                        }
+                    }, 800);
+
+                }, (error) => {
+                    console.error("Error leyendo historial:", error);
+                    alert("Error sincronizando los datos de los bots.");
+                });
+
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+    </script>
+</body>
+</html>

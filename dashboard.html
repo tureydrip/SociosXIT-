@@ -3,318 +3,690 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - LUCK XIT GALAXY</title>
+    <title>Dashboard - Socios XIT</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         /* =========================================
-           1. FUENTES Y PROTECCIÓN
+           1. FUENTES Y VARIABLES CÓSMICAS
            ========================================= */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
-
-        /* BLOQUEO DE SELECCIÓN (ANTI-COPIA) */
-        * {
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-
-        /* Variables de color */
-        :root {
-            --neon-purple: #bc13fe;
-            --neon-red: #ff073a;
-            --telegram-blue: #0088cc; /* Color oficial de Telegram */
-            --glass-bg: rgba(20, 0, 30, 0.6);
-        }
-
-        body {
-            background-color: #020005;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            overflow: hidden; 
-        }
-
-        /* FONDO DE PARTÍCULAS */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        /* =========================================
-           2. CONTENEDOR TIPO CRISTAL
-           ========================================= */
-        .container {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 
-                0 0 30px rgba(188, 19, 254, 0.2),
-                inset 0 0 20px rgba(255, 7, 58, 0.1);
-            width: 90%;
-            max-width: 400px;
-            border: 1px solid rgba(188, 19, 254, 0.3);
-            text-align: center;
-            animation: fadeIn 1s ease-out;
-            display: flex;
-            flex-direction: column;
-            gap: 20px; 
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* TÍTULO DE BIENVENIDA */
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-purple);
-            line-height: 1.4; 
-        }
-
-        /* ESTILO DEL NOMBRE DE USUARIO (DEBAJO DE BIENVENIDO) */
-        h1 span {
-            color: var(--neon-red);
-            text-shadow: 0 0 15px var(--neon-red);
-            display: block; 
-            font-size: 1.3em;
-            margin-top: 10px; 
-            min-height: 1.3em; 
-        }
-
-        /* =========================================
-           3. BOTONES ANIMADOS
-           ========================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;500;700&display=swap');
         
-        .neon-btn {
-            padding: 18px;
-            background: linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-red) 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 800;
-            font-size: 1rem;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.3);
-            position: relative;
-            overflow: hidden;
-            letter-spacing: 1px;
-            width: 100%;
+        * { user-select: none; box-sizing: border-box; }
+        
+        :root { 
+            --neon-pink: #ff0055;
+            --neon-blue: #00eeff;
+            --neon-purple: #bc13fe;
+            --neon-green: #00ffcc; 
+            --wa-green: #25D366;
+            --bg-deep: #030008;
+            --glass-bg: rgba(10, 2, 20, 0.85); 
+            --sidebar-bg: rgba(5, 0, 15, 0.95); 
         }
 
-        .neon-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: 0.5s;
+        body { 
+            background-color: var(--bg-deep); 
+            background-image: radial-gradient(circle at center, #1a0033 0%, var(--bg-deep) 70%);
+            color: white; 
+            font-family: 'Exo 2', sans-serif; 
+            margin: 0; padding: 0; 
+            min-height: 100dvh; 
+            display: flex; justify-content: center; align-items: center; flex-direction: column; 
+            overflow-x: hidden; 
         }
 
-        .neon-btn:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 0 25px var(--neon-purple), 0 0 5px #fff;
+        /* =========================================
+           2. FONDOS ÉPICOS: ANILLOS Y PARTÍCULAS
+           ========================================= */
+        .cosmic-portal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100vw; height: 100vh; z-index: -2;
+            display: flex; justify-content: center; align-items: center;
+            pointer-events: none; overflow: hidden;
         }
 
-        .neon-btn:hover::before {
-            left: 100%;
+        .magic-ring { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
+        .ring-outer { width: 900px; height: 900px; border: 4px dashed rgba(188, 19, 254, 0.3); box-shadow: 0 0 80px rgba(188, 19, 254, 0.4); animation: spinRing 60s linear infinite; }
+        .ring-middle { width: 700px; height: 700px; border: 2px solid rgba(0, 238, 255, 0.2); box-shadow: 0 0 50px rgba(0, 238, 255, 0.3); animation: spinRingReverse 30s linear infinite; }
+        .ring-inner { width: 550px; height: 550px; border: 6px dotted rgba(255, 0, 85, 0.3); box-shadow: 0 0 60px rgba(255, 0, 85, 0.4); animation: spinRing 20s linear infinite; }
+
+        .stars {
+            position: absolute; width: 100%; height: 100%;
+            background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0));
+            background-repeat: repeat; background-size: 200px 200px; animation: twinkle 4s infinite alternate; opacity: 0.4;
         }
 
-        .neon-btn:active {
-            transform: scale(0.98);
-        }
+        @keyframes spinRing { 100% { transform: rotate(360deg); } }
+        @keyframes spinRingReverse { 100% { transform: rotate(-360deg); } }
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 0.7; } }
 
-        /* --- NUEVO: BOTÓN TELEGRAM --- */
-        #telegramBtn {
-            background: linear-gradient(135deg, #00d2d3 0%, var(--telegram-blue) 100%);
-            box-shadow: 0 0 15px rgba(0, 136, 204, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.8; }
+        
+        /* =========================================
+           3. BARRA SUPERIOR HOLOGRÁFICA (Estilos CSS Mantenidos)
+           ========================================= */
+        .top-bar { 
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
+            width: 95%; max-width: 700px; 
+            background: rgba(10, 2, 20, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 238, 255, 0.4); border-radius: 15px; 
+            padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 0 20px rgba(0, 238, 255, 0.2); z-index: 100; 
         }
-
-        #telegramBtn:hover {
-            box-shadow: 0 0 25px var(--telegram-blue), 0 0 5px #fff;
+        .menu-btn { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; padding: 6px 10px; font-size: 1.5rem; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: inset 0 0 10px rgba(0, 238, 255, 0.2); }
+        .menu-btn:hover { background: rgba(0, 238, 255, 0.1); box-shadow: 0 0 15px var(--neon-blue); transform: scale(1.05); }
+        .menu-btn:active { transform: scale(0.9); }
+        
+        .top-bar-right { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 2px; }
+        .top-bar-right::-webkit-scrollbar { display: none; }
+        
+        .badge { 
+            display: flex; align-items: center; gap: 6px; 
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; 
+            color: #ddd; white-space: nowrap; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .badge:hover { border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); color: #fff; transform: translateY(-2px); }
+        .badge:active { transform: scale(0.95); }
+        .badge img { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--neon-blue); object-fit: cover; }
+        .badge span { color: #fff; font-weight: 700; }
+        .badge.green { border-color: rgba(0, 255, 204, 0.4); cursor: default; }
+        .badge.green:hover { border-color: var(--neon-green); box-shadow: 0 0 15px rgba(0, 255, 204, 0.4); transform: none; }
+        .badge.green:active { transform: scale(0.95); }
+        .badge.green span { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); font-size: 0.95rem; }
 
-        /* Botón Admin */
-        #adminBtn {
-            background: linear-gradient(135deg, #8e44ad 0%, #3498db 100%);
-            border: 1px solid #fff;
+        /* =========================================
+           4. MENÚ LATERAL CYBERPUNK (Estilos CSS Mantenidos)
+           ========================================= */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 998; opacity: 0; visibility: hidden; transition: opacity 0.4s ease; }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        
+        .sidebar { 
+            position: fixed; top: 0; left: -300px; width: 260px; height: 100dvh; 
+            background: var(--sidebar-bg); border-right: 2px solid var(--neon-purple); 
+            box-shadow: 10px 0 30px rgba(188, 19, 254, 0.2); z-index: 999; 
+            transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex; flex-direction: column; padding: 20px; padding-bottom: 40px; 
         }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(188, 19, 254, 0.4); padding-bottom: 15px; margin-bottom: 20px; }
+        .sidebar-header h2 { margin: 0; font-family: 'Orbitron', sans-serif; color: var(--neon-blue); font-size: 1.3rem; text-shadow: 0 0 10px var(--neon-blue); }
+        
+        .close-btn { background: transparent; border: none; color: var(--neon-pink); font-size: 2rem; cursor: pointer; transition: all 0.3s ease; }
+        .close-btn:hover { transform: scale(1.1) rotate(90deg); text-shadow: 0 0 10px var(--neon-pink); }
+        .close-btn:active { transform: scale(0.9) rotate(90deg); }
+        
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; overflow-y: auto; padding-bottom: 20px; overflow-x: hidden; }
+        .sidebar-menu::-webkit-scrollbar { display: none; }
 
-        /* Botón Cerrar Sesión */
+        .sidebar-item { 
+            display: flex; align-items: center; gap: 12px; color: #ddd; text-decoration: none; 
+            padding: 12px 15px; background: rgba(255,255,255,0.02); border-radius: 10px; 
+            font-size: 1rem; font-family: 'Exo 2', sans-serif; border: 1px solid transparent;
+            position: relative; overflow: hidden; flex-shrink: 0;
+            border-left: 4px solid transparent;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0; transform: translateX(-30px);
+        }
+        
+        .sidebar.active .sidebar-item { animation: slideInItem 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .sidebar.active .sidebar-item:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar.active .sidebar-item:nth-child(2) { animation-delay: 0.15s; }
+        .sidebar.active .sidebar-item:nth-child(3) { animation-delay: 0.2s; }
+        .sidebar.active .sidebar-item:nth-child(4) { animation-delay: 0.25s; }
+        .sidebar.active .sidebar-item:nth-child(5) { animation-delay: 0.3s; }
+        .sidebar.active .sidebar-item:nth-child(6) { animation-delay: 0.35s; }
+        .sidebar.active .sidebar-item:nth-child(7) { animation-delay: 0.4s; }
+        .sidebar.active .sidebar-item:nth-child(8) { animation-delay: 0.45s; }
+        .sidebar.active .sidebar-item:nth-child(9) { animation-delay: 0.5s; }
+        .sidebar.active .sidebar-item:nth-child(10) { animation-delay: 0.55s; }
+
+        @keyframes slideInItem { to { opacity: 1; transform: translateX(0); } }
+
+        .sidebar-item i { font-size: 1.4rem; color: var(--neon-purple); transition: 0.3s; }
+        
+        .sidebar-item:hover { 
+            background: linear-gradient(90deg, rgba(0, 238, 255, 0.15), transparent); 
+            border-left: 4px solid var(--neon-blue); color: #fff; box-shadow: -5px 0 15px rgba(0, 238, 255, 0.2); 
+            transform: translateX(8px);
+        }
+        .sidebar-item:hover i { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); transform: scale(1.1); }
+        .sidebar-item:active { transform: scale(0.95) translateX(5px); }
+        
+        .sidebar-footer { margin-top: auto; border-top: 1px dashed rgba(188, 19, 254, 0.4); padding-top: 20px; flex-shrink: 0; }
+        
         .logout-btn {
-            background: transparent;
-            border: 2px solid rgba(255, 7, 58, 0.5);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
+            width: 100%; background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink);
+            padding: 12px; border-radius: 10px; font-weight: 600; font-family: 'Orbitron';
+            cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+            position: relative; overflow: hidden; z-index: 1;
+        }
+        .logout-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 85, 0.4), transparent);
+            transition: left 0.5s ease; z-index: -1;
+        }
+        .logout-btn:hover { background: rgba(255, 0, 85, 0.1); box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); text-shadow: 0 0 5px var(--neon-pink); }
+        .logout-btn:hover::before { left: 100%; }
+        .logout-btn:active { transform: scale(0.92); }
+
+        .sidebar-version { text-align: center; margin-top: 20px; font-family: 'Exo 2', sans-serif; color: #666; font-size: 0.75rem; display: flex; flex-direction: column; gap: 5px; }
+        .sidebar-version p { margin: 0; transition: color 0.3s; }
+        .sidebar-version:hover p { color: #aaa; }
+        .version-badge {
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            color: var(--neon-blue); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: bold;
+            text-shadow: 0 0 8px rgba(0, 238, 255, 0.6); margin-top: 5px;
+            animation: pulseV4 2s infinite alternate ease-in-out;
+        }
+        @keyframes pulseV4 { 0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(0, 238, 255, 0.4)); } 100% { transform: scale(1.05); filter: drop-shadow(0 0 12px rgba(0, 238, 255, 0.9)); } }
+
+        /* =========================================
+           5. HUB CENTRAL (CONTENEDOR PRINCIPAL) Y 3D
+           ========================================= */
+        .main-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; z-index: 10; margin-top: 80px; }
+
+        .hub-container { 
+            width: 90%; max-width: 450px; text-align: center; 
+            animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex; flex-direction: column; align-items: center; 
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 2.5rem 2rem; border-radius: 20px; border: 1px solid rgba(188, 19, 254, 0.3);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(188, 19, 254, 0.1);
+            position: relative; overflow: hidden; transition: all 0.3s ease;
+        }
+        .hub-container:hover { box-shadow: 0 0 40px rgba(188, 19, 254, 0.3), inset 0 0 30px rgba(188, 19, 254, 0.2); }
+        
+        .hub-container::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-pink), transparent);
+            animation: lightSweep 3s infinite;
+        }
+        @keyframes lightSweep { 0% { background-position: -200px 0; } 100% { background-position: 400px 0; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        
+        .center-3d-wrapper { width: 90px; height: 90px; margin-bottom: 25px; perspective: 600px; animation: float3D 4s ease-in-out infinite; }
+        .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: rotateCube 10s infinite linear; }
+        .cube-face {
+            position: absolute; width: 90px; height: 90px; border: 2px solid var(--neon-blue);
+            background: rgba(0, 238, 255, 0.1); box-shadow: inset 0 0 20px rgba(0, 238, 255, 0.4), 0 0 10px rgba(0, 238, 255, 0.3);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .cube-face.front  { transform: translateZ(45px); }
+        .cube-face.back   { transform: rotateY(180deg) translateZ(45px); }
+        .cube-face.right  { transform: rotateY(90deg) translateZ(45px); background: rgba(188, 19, 254, 0.1); border-color: var(--neon-purple); box-shadow: inset 0 0 20px rgba(188, 19, 254, 0.4), 0 0 10px rgba(188, 19, 254, 0.3); }
+        .cube-face.left   { transform: rotateY(-90deg) translateZ(45px); background: rgba(188, 19, 254, 0.1); border-color: var(--neon-purple); box-shadow: inset 0 0 20px rgba(188, 19, 254, 0.4), 0 0 10px rgba(188, 19, 254, 0.3); }
+        .cube-face.top    { transform: rotateX(90deg) translateZ(45px); background: rgba(255, 0, 85, 0.1); border-color: var(--neon-pink); box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.4), 0 0 10px rgba(255, 0, 85, 0.3); }
+        .cube-face.bottom { transform: rotateX(-90deg) translateZ(45px); background: rgba(255, 0, 85, 0.1); border-color: var(--neon-pink); box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.4), 0 0 10px rgba(255, 0, 85, 0.3); }
+        
+        @keyframes rotateCube { from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); } to { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); } }
+        @keyframes float3D { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        
+        .hub-title { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; background: linear-gradient(to right, var(--neon-blue), var(--neon-purple), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 10px 0; filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); }
+        .hub-desc { color: #cceeff; font-size: 0.95rem; margin-bottom: 30px; line-height: 1.6; }
+        
+        .action-buttons { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        .neon-btn { 
+            padding: 18px; border: none; border-radius: 12px; color: white; 
+            font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 1.05rem; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; 
+            text-decoration: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            text-transform: uppercase; letter-spacing: 1px; position: relative; overflow: hidden;
+        }
+        .btn-ranking { background: linear-gradient(90deg, #FFD700, #ff0055); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); border: 1px solid #fff; }
+        .btn-ranking:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 30px #FFD700; color: white;}
+        .btn-store { background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); color: #fff; box-shadow: 0 0 20px rgba(0, 238, 255, 0.4); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-store:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 30px var(--neon-blue); }
+        .btn-history { background: transparent; border: 2px solid var(--neon-pink); color: var(--neon-pink); box-shadow: inset 0 0 10px rgba(255, 0, 85, 0.2); }
+        .btn-history:hover { background: rgba(255, 0, 85, 0.1); transform: translateY(-3px) scale(1.03); box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 20px rgba(255, 0, 85, 0.4); color: white; }
+
+        /* =========================================
+           6. ESPACIO PARA ANUNCIOS
+           ========================================= */
+        #ads-container { width: 90%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; margin-bottom: 30px; z-index: 10; }
+        .ad-slot, .adsbox { 
+            width: 100%; min-height: 80px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);
+            border: 1px dashed rgba(0, 238, 255, 0.3); border-radius: 10px; 
+            display: flex; justify-content: center; align-items: center; color: rgba(255, 255, 255, 0.3); 
+            font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 1px; transition: 0.3s;
+        }
+
+        /* =========================================
+           7. MODALES (BIENVENIDA, RECARGAS, ADBLOCK)
+           ========================================= */
+        .welcome-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 2000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.4s; }
+        .welcome-overlay.active { opacity: 1; visibility: visible; }
+        .welcome-modal { background: var(--glass-bg); border: 1px solid var(--neon-blue); border-radius: 20px; padding: 30px 25px; width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 40px rgba(0, 238, 255, 0.3); }
+        .welcome-icon { font-size: 4rem; color: var(--neon-blue); margin-bottom: 10px; animation: pulseGlow 2s infinite; }
+        .btn-tg { background: linear-gradient(90deg, #00d2d3, #0088cc); margin-bottom: 15px; width: 100%; padding: 15px; border-radius: 10px; color: white; display: flex; justify-content: center; gap: 10px; font-weight: bold; text-decoration: none; font-family: 'Orbitron'; letter-spacing: 1px;}
+        .btn-auth { background: transparent; border: 2px solid var(--neon-purple); color: white; width: 100%; padding: 15px; border-radius: 10px; margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; font-weight: bold; text-decoration: none; font-family: 'Orbitron'; letter-spacing: 1px;}
+        .btn-never-show { width: 100%; padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #777; border-radius: 10px; cursor: not-allowed; font-family: 'Exo 2'; }
+        .btn-never-show.ready { color: var(--neon-pink); border-color: var(--neon-pink); cursor: pointer; }
+
+        .epic-popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.5s ease; }
+        .epic-popup-overlay.show { opacity: 1; visibility: visible; }
+        .epic-popup-box { background: var(--glass-bg); border-radius: 20px; padding: 40px 25px; width: 90%; max-width: 450px; text-align: center; transform: scale(0.8) translateY(50px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(0,0,0,0.8); position: relative; overflow: hidden; }
+        .epic-popup-overlay.show .epic-popup-box { transform: scale(1) translateY(0); }
+        .epic-popup-box.approved { border: 2px solid var(--neon-green); box-shadow: 0 0 40px rgba(0, 255, 204, 0.3); }
+        .epic-popup-box.rejected { border: 2px solid var(--neon-pink); box-shadow: 0 0 40px rgba(255, 0, 85, 0.3); }
+        .epic-icon-wrapper { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; font-size: 4rem; animation: pulseGlow 2s infinite; }
+        .epic-popup-box.approved .epic-icon-wrapper { background: rgba(0, 255, 204, 0.1); color: var(--neon-green); border: 2px solid var(--neon-green); }
+        .epic-popup-box.rejected .epic-icon-wrapper { background: rgba(255, 0, 85, 0.1); color: var(--neon-pink); border: 2px solid var(--neon-pink); }
+        @keyframes pulseGlow { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
+        .epic-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px; }
+        .epic-popup-box.approved .epic-title { color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green); }
+        .epic-popup-box.rejected .epic-title { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink); }
+        .epic-msg { font-size: 1rem; color: #ddd; margin-bottom: 30px; line-height: 1.6; }
+        .epic-msg strong { font-family: 'Orbitron'; font-size: 1.2rem; color: #fff; }
+        .epic-buttons { display: flex; flex-direction: column; gap: 15px; }
+        .btn-epic-primary { width: 100%; padding: 18px; border: none; border-radius: 12px; font-family: 'Orbitron'; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none; }
+        .btn-epic-primary.green { background: var(--neon-green); color: #000; box-shadow: 0 0 20px var(--neon-green); }
+        .btn-epic-primary.green:hover { transform: scale(1.05); }
+        .btn-epic-secondary { background: transparent; border: 2px solid #555; color: #aaa; padding: 15px; border-radius: 12px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-epic-secondary:hover { border-color: #fff; color: #fff; }
+
+        .adblock-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(3, 0, 8, 0.98); backdrop-filter: blur(15px); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .adblock-overlay i { font-size: 5rem; color: var(--neon-pink); margin-bottom: 20px; text-shadow: 0 0 20px var(--neon-pink); animation: pulseGlowAd 2s infinite; }
+        .adblock-overlay h1 { font-family: 'Orbitron'; color: white; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-pink); letter-spacing: 2px;}
+        .adblock-overlay p { color: #ccc; max-width: 450px; margin-bottom: 30px; font-family: 'Exo 2'; line-height: 1.6; }
+        .btn-reload { padding: 15px 35px; background: transparent; border: 2px solid var(--neon-pink); color: white; border-radius: 12px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; box-shadow: inset 0 0 15px rgba(255, 0, 85, 0.2); letter-spacing: 1px; }
+        .btn-reload:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 30px var(--neon-pink); }
+        @keyframes pulseGlowAd { 0%, 100% { transform: scale(1); text-shadow: 0 0 20px var(--neon-pink); } 50% { transform: scale(1.1); text-shadow: 0 0 40px var(--neon-pink); } }
+
+        /* =========================================
+           8. MODAL DE ALERTA WHATSAPP CYBERPUNK
+           ========================================= */
+        .wa-alert-overlay, .wa-group-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 9500; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.5s ease; }
+        .wa-group-overlay { z-index: 9600; } 
+        .wa-alert-overlay.show, .wa-group-overlay.show { opacity: 1; visibility: visible; }
+        .wa-alert-box { background: var(--glass-bg); border-radius: 20px; padding: 40px 25px; width: 90%; max-width: 450px; text-align: center; transform: scale(0.8) translateY(50px); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(37, 211, 102, 0.15), inset 0 0 20px rgba(37, 211, 102, 0.1); position: relative; overflow: hidden; border: 2px solid var(--wa-green); }
+        .wa-alert-overlay.show .wa-alert-box, .wa-group-overlay.show .wa-alert-box { transform: scale(1) translateY(0); }
+        .wa-icon-wrapper { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; font-size: 4.5rem; background: rgba(37, 211, 102, 0.1); color: var(--wa-green); border: 2px solid var(--wa-green); animation: pulseGlowWa 2s infinite; }
+        @keyframes pulseGlowWa { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4); } 70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
+        .wa-title { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; color: var(--wa-green); text-shadow: 0 0 10px var(--wa-green); margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .wa-msg { font-size: 1rem; color: #ddd; margin-bottom: 30px; line-height: 1.6; }
+        .wa-msg strong { font-family: 'Orbitron'; color: #fff; font-size: 1.1rem; }
+        .wa-btn-primary { width: 100%; padding: 18px; border: none; border-radius: 12px; font-family: 'Orbitron'; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; background: var(--wa-green); color: #000; box-shadow: 0 0 20px var(--wa-green); text-decoration: none; }
+        .wa-btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 35px var(--wa-green); }
+        .wa-btn-close { background: transparent; border: none; color: #888; margin-top: 18px; font-family: 'Exo 2'; font-size: 0.95rem; cursor: pointer; transition: 0.3s; text-decoration: underline; width: 100%; text-align: center; }
+        .wa-btn-close:hover { color: #fff; }
+
+        /* =========================================
+           10. MENÚ DE SOPORTE Y CHAT IA
+           ========================================= */
+        .support-wrapper {
+            position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
+        }
+        
+        .support-menu {
+            display: flex; flex-direction: column; gap: 12px;
+            opacity: 0; visibility: hidden; transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .support-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .support-item {
+            display: flex; align-items: center; gap: 10px; padding: 12px 20px;
+            border-radius: 30px; font-family: 'Orbitron'; font-weight: bold;
+            text-decoration: none; font-size: 1rem; cursor: pointer;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid transparent; transition: all 0.3s ease;
+        }
+        
+        .support-wa {
+            background: rgba(37, 211, 102, 0.15); color: var(--wa-green);
+            border-color: rgba(37, 211, 102, 0.4); box-shadow: 0 0 15px rgba(37, 211, 102, 0.2);
+        }
+        .support-wa:hover { background: var(--wa-green); color: #000; box-shadow: 0 0 25px var(--wa-green); transform: scale(1.05) translateX(-5px); }
+        
+        .support-ia {
+            background: rgba(0, 238, 255, 0.15); color: var(--neon-blue);
+            border-color: rgba(0, 238, 255, 0.4); box-shadow: 0 0 15px rgba(0, 238, 255, 0.2);
+        }
+        .support-ia:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 25px var(--neon-blue); transform: scale(1.05) translateX(-5px); }
+        
+        .support-main-btn {
+            width: 65px; height: 65px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+            color: white; display: flex; justify-content: center; align-items: center;
+            font-size: 2.5rem; cursor: pointer; border: none;
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.5); transition: all 0.3s ease;
+            animation: floatSupport 3s infinite ease-in-out;
+        }
+        .support-main-btn:hover { transform: scale(1.1); box-shadow: 0 0 35px var(--neon-blue); }
+        .support-main-btn i { transition: transform 0.3s ease; }
+        .support-main-btn.active i { transform: rotate(135deg); }
+        
+        @keyframes floatSupport { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        /* --- MODAL DEL CHAT DE IA --- */
+        .ia-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 10000; display: flex; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: 0.4s ease;
+        }
+        .ia-modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .ia-chat-box {
+            width: 90%; max-width: 450px; height: 75vh; max-height: 700px;
+            background: var(--glass-bg); border: 1px solid var(--neon-blue);
+            border-radius: 20px; box-shadow: 0 0 40px rgba(0, 238, 255, 0.2), inset 0 0 20px rgba(0, 238, 255, 0.05);
+            display: flex; flex-direction: column; overflow: hidden;
+            transform: scale(0.9) translateY(30px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .ia-modal-overlay.active .ia-chat-box { transform: scale(1) translateY(0); }
+        
+        .ia-header {
+            background: rgba(0, 238, 255, 0.1); border-bottom: 1px dashed rgba(0, 238, 255, 0.4);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .ia-title { display: flex; align-items: center; gap: 10px; font-family: 'Orbitron'; font-weight: bold; color: #fff; font-size: 1.2rem; text-shadow: 0 0 10px var(--neon-blue); }
+        .ia-title i { font-size: 1.8rem; color: var(--neon-blue); animation: pulseGlow 2s infinite; }
+        
+        .ia-version { 
+            font-size: 0.65rem; 
+            background: rgba(188, 19, 254, 0.15); 
+            color: var(--neon-purple); 
+            padding: 4px 8px; 
+            border-radius: 6px; 
+            border: 1px solid var(--neon-purple); 
+            margin-left: 10px; 
+            letter-spacing: 1px; 
+            font-family: 'Exo 2', sans-serif;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.9rem;
+            text-shadow: none;
+            box-shadow: 0 0 8px rgba(188, 19, 254, 0.3);
         }
 
-        .logout-btn:hover {
-            background: var(--neon-red);
-            color: white;
-            box-shadow: 0 0 20px var(--neon-red);
-            border-color: var(--neon-red);
-            transform: scale(1.02);
-        }
-
+        .ia-close { background: transparent; border: none; color: var(--neon-pink); font-size: 2rem; cursor: pointer; transition: 0.3s; }
+        .ia-close:hover { transform: scale(1.2) rotate(90deg); text-shadow: 0 0 15px var(--neon-pink); }
+        
+        .ia-body { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth;}
+        .ia-body::-webkit-scrollbar { width: 4px; }
+        .ia-body::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; }
+        
+        .msg-bubble { max-width: 85%; padding: 12px 16px; border-radius: 15px; font-size: 0.95rem; line-height: 1.5; font-family: 'Exo 2'; word-wrap: break-word; position: relative; }
+        .msg-ia { background: rgba(0, 238, 255, 0.1); border: 1px solid rgba(0, 238, 255, 0.3); color: #fff; align-self: flex-start; border-top-left-radius: 2px; box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5); }
+        .msg-user { background: rgba(188, 19, 254, 0.15); border: 1px solid rgba(188, 19, 254, 0.4); color: #fff; align-self: flex-end; border-top-right-radius: 2px; box-shadow: -5px 5px 15px rgba(0, 0, 0, 0.5); }
+        .typing-indicator { display: flex; gap: 5px; padding: 15px; align-self: flex-start; }
+        .typing-indicator span { width: 8px; height: 8px; background: var(--neon-blue); border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        .ia-footer { padding: 15px; border-top: 1px dashed rgba(0, 238, 255, 0.3); display: flex; gap: 10px; background: rgba(5, 0, 15, 0.9); }
+        .ia-input { flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 12px 15px; border-radius: 12px; font-family: 'Exo 2'; font-size: 1rem; outline: none; transition: 0.3s; }
+        .ia-input:focus { border-color: var(--neon-blue); box-shadow: inset 0 0 10px rgba(0, 238, 255, 0.2); }
+        .ia-input::placeholder { color: #666; }
+        
+        .ia-send-btn { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); width: 48px; height: 48px; border-radius: 12px; font-size: 1.5rem; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; box-shadow: inset 0 0 10px rgba(0, 238, 255, 0.1); }
+        .ia-send-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); transform: scale(1.05); }
     </style>
 </head>
-<body oncontextmenu="return false;"> <canvas id="particle-canvas"></canvas>
+<body oncontextmenu="return false;"> 
 
-    <div class="container">
-        <h1>Bienvenido <span id="userDisplay">...</span></h1>
-        
-        <button class="neon-btn" onclick="window.location.href='recarga.html'">
-            Recargar Saldo
-        </button>
-        
-        <button class="neon-btn" onclick="window.location.href='index.html'">
-            Comprar Productos
-        </button>
+    <script src="menu.js"></script>
 
-        <button id="telegramBtn" class="neon-btn" onclick="window.location.href='bot.html'">
-            ✈️ Autorizar ID (Telegram)
-        </button>
-        
-        <button id="adminBtn" class="neon-btn" style="display:none;" onclick="window.location.href='admin.html'">
-            Panel Admin
-        </button>
+    <div class="adblock-overlay" id="adblockScreen" style="display: none;">
+        <i class='bx bx-shield-x'></i>
+        <h1>ADBLOCK DETECTADO</h1>
+        <p>Para acceder a Socios XIT , necesitamos que desactives tu bloqueador de anuncios. Nuestros creadores mantienen este servicio gracias a la publicidad.</p>
+        <button class="btn-reload" onclick="location.reload()">YA LO DESACTIVÉ</button>
+    </div>
 
-        <button class="logout-btn" id="logoutBtn">
-            Cerrar Sesión
+    <div class="cosmic-portal">
+        <div class="stars"></div>
+        <div class="magic-ring ring-outer"></div>
+        <div class="magic-ring ring-middle"></div>
+        <div class="magic-ring ring-inner"></div>
+    </div>
+
+    <div id="waGroupOverlay" class="wa-group-overlay">
+        <div class="wa-alert-box">
+            <div class="wa-icon-wrapper"><i class='bx bxs-group'></i></div>
+            <h2 class="wa-title">UNIRSE AL GRUPO</h2>
+            <p class="wa-msg">¡Únete a nuestro grupo de <strong>socios a WhatsApp</strong> para enterarte de todas las novedades y estar en contacto con la comunidad!</p>
+            <a href="https://chat.whatsapp.com/GDw2aitD17BFa0WdYS2E53" target="_blank" class="wa-btn-primary"><i class='bx bxl-whatsapp'></i> UNIRSE AL GRUPO</a>
+            <button id="btnCerrarWaGroup" class="wa-btn-close">No mostrar más y cerrar</button>
+        </div>
+    </div>
+
+    <div id="waAlertOverlay" class="wa-alert-overlay">
+        <div class="wa-alert-box">
+            <div class="wa-icon-wrapper"><i class='bx bxl-whatsapp'></i></div>
+            <h2 class="wa-title">ACCIÓN REQUERIDA</h2>
+            <p class="wa-msg">Hemos detectado que <strong>NO</strong> tienes tu número de WhatsApp registrado en el sistema.<br><br>Es obligatorio para que el bot pueda notificarte en tiempo real sobre la <strong>aprobación de tus recargas y entregas</strong>.</p>
+            <a href="perfil.html" class="wa-btn-primary"><i class='bx bx-user-circle'></i> IR A MI PERFIL</a>
+            <button id="btnCerrarWaAlert" class="wa-btn-close">Registrar más tarde</button>
+        </div>
+    </div>
+
+    <div id="epicPopupOverlay" class="epic-popup-overlay">
+        <div id="epicPopupBox" class="epic-popup-box">
+            <div id="epicIcon" class="epic-icon-wrapper"><i class='bx bx-check'></i></div>
+            <h2 id="epicTitle" class="epic-title">TÍTULO</h2>
+            <p id="epicMsg" class="epic-msg">Mensaje descriptivo aquí.</p>
+            <div id="epicButtons" class="epic-buttons"></div>
+        </div>
+    </div>
+
+    <div class="welcome-overlay" id="welcomeModal">
+        <div class="welcome-modal">
+            <i class='bx bxl-telegram welcome-icon'></i>
+            <h2 style="font-family:'Orbitron';">¡Sincroniza tu cuenta!</h2>
+            <p style="color:#ccc; font-size:0.9rem;">Para comprar desde Telegram, vincula tu cuenta ahora.</p>
+            <a href="https://t.me/Socios66_bot" target="_blank" class="btn-tg"><i class='bx bx-bot'></i> 1. Ir al Bot Oficial</a>
+            <a href="bot.html" class="btn-auth"><i class='bx bx-link'></i> 2. Autorizar mi ID</a>
+            <button class="btn-never-show" id="closeWelcomeBtn" disabled>Cerrar y no mostrar más (5s)</button>
+        </div>
+    </div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="main-wrapper">
+        <div class="hub-container">
+            <div class="center-3d-wrapper">
+                <div class="cube">
+                    <div class="cube-face front"></div>
+                    <div class="cube-face back"></div>
+                    <div class="cube-face right"></div>
+                    <div class="cube-face left"></div>
+                    <div class="cube-face top"></div>
+                    <div class="cube-face bottom"></div>
+                </div>
+            </div>
+            
+            <h1 class="hub-title">Socios XIT </h1>
+            <p class="hub-desc">La mejor tienda de productos y llaves digitales. Compra rápido, seguro y al instante con soporte 24/7.</p>
+            <div class="action-buttons">
+                <a href="ranking.html" class="neon-btn btn-ranking"><i class='bx bx-trophy'></i> Ver Rankings y Premios</a>
+                <a href="index.html" class="neon-btn btn-store"><i class='bx bx-store-alt'></i> Explorar Tienda</a>
+                <a href="historial.html" class="neon-btn btn-history"><i class='bx bx-history'></i> Mis Compras</a>
+            </div>
+        </div>
+
+        <div id="ads-container">
+            <div class="ad-slot adsbox">ESPACIO PUBLICITARIO 1</div>
+            <div class="ad-slot adsbox">ESPACIO PUBLICITARIO 2</div>
+        </div>
+    </div>
+
+    <div class="support-wrapper">
+        <div class="support-menu" id="supportMenu">
+            <button class="support-item support-ia" id="openIaBtn">
+                <i class='bx bx-bot'></i> Soporte de IA
+            </button>
+            <a href="https://wa.me/573142369516" target="_blank" class="support-item support-wa">
+                <i class='bx bxl-whatsapp'></i> Vía WhatsApp
+            </a>
+        </div>
+        <button class="support-main-btn" id="supportToggleBtn">
+            <i class='bx bx-support'></i>
         </button>
     </div>
 
+    <div class="ia-modal-overlay" id="iaModalOverlay">
+        <div class="ia-chat-box">
+            <div class="ia-header">
+                <div class="ia-title">
+                    <i class='bx bx-bot'></i> Asistente XIT
+                    <span class="ia-version">Xit IA v1 lite</span>
+                </div>
+                <button class="ia-close" id="closeIaBtn"><i class='bx bx-x'></i></button>
+            </div>
+            
+            <div class="ia-body" id="iaChatBody">
+                <div class="msg-bubble msg-ia">
+                    ¡Hola! Soy la IA de soporte de Socios XIT. Conozco cada rincón de la plataforma. ¿En qué te puedo ayudar hoy? (No puedo generar keys ni dar saldo, pero te guío en lo que necesites buscar).
+                </div>
+            </div>
+            
+            <div class="ia-footer">
+                <input type="text" class="ia-input" id="iaInput" placeholder="Escribe tu consulta aquí..." autocomplete="off">
+                <button class="ia-send-btn" id="iaSendBtn">
+                    <i class='bx bx-send'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        /* SCRIPT DE FONDO DE PARTÍCULAS */
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+        // --- CONTROL DE ADBLOCK Y NOTIFICACIONES WA ---
+        function checkAdBlock() {
+            const ad = document.createElement('div');
+            ad.className = 'adsbox'; ad.style.height = '1px'; ad.style.width = '1px'; ad.style.position = 'absolute'; ad.style.left = '-1000px';
+            document.body.appendChild(ad);
+            setTimeout(() => {
+                const isBlocked = ad.offsetHeight === 0;
+                ad.remove();
+                if (isBlocked) document.getElementById('adblockScreen').style.display = 'flex';
+            }, 300);
         }
-        window.addEventListener('resize', resize);
-        resize();
+        
+        window.addEventListener('load', () => {
+            checkAdBlock();
+            setTimeout(() => { if (!localStorage.getItem('waGroupDismissed')) document.getElementById('waGroupOverlay').classList.add('show'); }, 1000); 
+        });
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 1.5;
-                this.vy = (Math.random() - 0.5) * 1.5;
-                this.size = Math.random() * 2 + 1;
-                this.color = Math.random() > 0.5 ? 'rgba(255, 7, 58, ' : 'rgba(188, 19, 254, ';
-                this.alpha = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color + this.alpha + ')';
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color + '1)';
-                ctx.fill();
-            }
-        }
+        document.getElementById('btnCerrarWaGroup').onclick = () => { localStorage.setItem('waGroupDismissed', 'true'); document.getElementById('waGroupOverlay').classList.remove('show'); };
+        document.getElementById('btnCerrarWaAlert').onclick = () => { sessionStorage.setItem('waAlertDismissed', 'true'); document.getElementById('waAlertOverlay').classList.remove('show'); };
 
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < 60; i++) {
-                particles.push(new Particle());
+        // --- CONTROL DEL POPUP ÉPICO ---
+        function showEpicPopup(type, amount) {
+            const overlay = document.getElementById('epicPopupOverlay'); const box = document.getElementById('epicPopupBox'); const icon = document.getElementById('epicIcon'); const title = document.getElementById('epicTitle'); const msg = document.getElementById('epicMsg'); const buttonsContainer = document.getElementById('epicButtons');
+            box.className = `epic-popup-box ${type}`; buttonsContainer.innerHTML = '';
+            if (type === 'approved') {
+                icon.innerHTML = "<i class='bx bxs-check-shield'></i>"; title.innerText = "¡RECARGA APROBADA!";
+                msg.innerHTML = `Comprobante de pago verificado.<br><br>Añadido <strong style="color:var(--neon-green); font-size:1.5rem;">$${parseFloat(amount).toFixed(2)} USD</strong>.`;
+                buttonsContainer.innerHTML = `<button onclick="location.reload()" class="btn-epic-primary green"><i class='bx bx-refresh'></i> ACTUALIZAR SALDO</button>`;
+            } else {
+                icon.innerHTML = "<i class='bx bxs-error-circle'></i>"; title.innerText = "¡PAGO RECHAZADO!";
+                msg.innerHTML = `Comprobante <strong>denegado</strong>. Contacta a soporte si es un error.`;
+                buttonsContainer.innerHTML = `<a href="https://wa.me/573142369516" target="_blank" class="btn-epic-primary btn-whatsapp"><i class='bx bxl-whatsapp'></i> SOPORTE</a><button onclick="closeEpicPopup()" class="btn-epic-secondary">CERRAR</button>`;
             }
+            overlay.classList.add('show');
         }
+        function closeEpicPopup() { document.getElementById('epicPopupOverlay').classList.remove('show'); }
 
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-                for (let j = i; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 120) {
-                        ctx.beginPath();
-                        ctx.strokeStyle = 'rgba(150, 50, 255, ' + (1 - distance/120) * 0.2 + ')';
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-            requestAnimationFrame(animate);
-        }
-        initParticles();
-        animate();
+        // --- CONTROL DEL MENÚ DE SOPORTE Y CHAT IA ---
+        const supportToggleBtn = document.getElementById('supportToggleBtn');
+        const supportMenu = document.getElementById('supportMenu');
+        const iaModalOverlay = document.getElementById('iaModalOverlay');
+        const openIaBtn = document.getElementById('openIaBtn');
+        const closeIaBtn = document.getElementById('closeIaBtn');
+
+        supportToggleBtn.addEventListener('click', () => {
+            supportMenu.classList.toggle('active'); supportToggleBtn.classList.toggle('active');
+        });
+
+        openIaBtn.addEventListener('click', () => {
+            iaModalOverlay.classList.add('active');
+            supportMenu.classList.remove('active'); supportToggleBtn.classList.remove('active');
+            setTimeout(() => document.getElementById('iaInput').focus(), 100);
+        });
+
+        closeIaBtn.addEventListener('click', () => { iaModalOverlay.classList.remove('active'); });
+
+        // --- CONTROL DE PARTÍCULAS ---
+        const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; } window.addEventListener('resize', resize); resize();
+        class Particle { constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5); this.vy = (Math.random() - 0.5); this.size = Math.random() * 2 + 1; this.color = Math.random() > 0.5 ? 'rgba(0, 243, 255, ' : 'rgba(188, 19, 254, '; this.alpha = Math.random() * 0.5 + 0.2; } update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color + this.alpha + ')'; ctx.fill(); } }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); } animate();
     </script>
 
     <script type="module">
         import { auth, db, onAuthStateChanged, signOut, ref, get, child } from './firebase-config.js';
+        import { onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Buscamos los datos tal cual como en tu código de muestra
-                get(child(ref(db), `users/${user.uid}`)).then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.val();
-                        // Asignamos el nombre al span
-                        document.getElementById('userDisplay').innerText = data.username;
-                        
-                        // Verificamos si es admin
-                        if(data.role === 'admin') {
-                            document.getElementById('adminBtn').style.display = 'block';
-                        }
-                    }
-                });
-            } else {
-                // Si no hay usuario, redirige
-                window.location.href = "login.html";
+        setPersistence(auth, browserSessionPersistence).catch((error) => { console.error("Error persistencia:", error); });
+
+        let initialLoad = true; let knownRecharges = {};
+
+        // Este botón ahora vive en menu.js, pero podemos asignarle el evento click
+        // usando delegación de eventos o esperar un poco a que cargue.
+        // La mejor manera es delegar el evento en el document:
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'logoutMenuBtn' || e.target.closest('#logoutMenuBtn')) {
+                e.preventDefault(); 
+                signOut(auth).then(() => window.location.href="login.html");
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth).then(() => window.location.href = "login.html");
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const d = new Date(user.metadata.creationTime);
+                // Usamos validaciones por si los elementos aún no se renderizan desde menu.js
+                const joinDateEl = document.getElementById('joinDateDisplay');
+                if (joinDateEl) joinDateEl.innerText = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+                
+                const userRef = ref(db, `users/${user.uid}`);
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        
+                        const topUserEl = document.getElementById('topUserDisplay');
+                        const balanceEl = document.getElementById('balanceDisplay');
+                        const topAvatarEl = document.getElementById('topAvatar');
+                        const adminMenuEl = document.getElementById('adminMenuBtn');
+
+                        if (topUserEl) topUserEl.innerText = data.username;
+                        if (balanceEl) balanceEl.innerText = parseFloat(data.balance || 0).toFixed(2);
+                        if (topAvatarEl && data.avatar) topAvatarEl.src = data.avatar;
+                        
+                        if(adminMenuEl && (data.role === 'admin' || data.username.toLowerCase() === 'sebasxit' || data.username.toLowerCase() === 'socios xit ofc')) { 
+                            adminMenuEl.style.display = 'flex'; 
+                        }
+
+                        if (!data.whatsapp && !sessionStorage.getItem('waAlertDismissed')) { setTimeout(() => { document.getElementById('waAlertOverlay').classList.add('show'); }, 2000); }
+                        if (data.recharges) {
+                            if (!initialLoad) {
+                                for (let key in data.recharges) {
+                                    const currentStatus = data.recharges[key].status; const oldStatus = knownRecharges[key] ? knownRecharges[key].status : null;
+                                    if (oldStatus === 'pending_approval' || oldStatus === 'waiting_proof') {
+                                        if (currentStatus === 'approved') showEpicPopup('approved', data.recharges[key].amount);
+                                        else if (currentStatus === 'rejected') showEpicPopup('rejected', 0);
+                                    }
+                                }
+                            }
+                            knownRecharges = JSON.parse(JSON.stringify(data.recharges));
+                        }
+                        if (!data.linked_devices && !localStorage.getItem('welcomeXITDismissed')) {
+                            const wm = document.getElementById('welcomeModal'); const cBtn = document.getElementById('closeWelcomeBtn');
+                            wm.classList.add('active'); let tl = 5; cBtn.innerText = `Cerrar (${tl}s)`;
+                            const timer = setInterval(() => { tl--; if(tl>0) cBtn.innerText = `Cerrar (${tl}s)`; else { clearInterval(timer); cBtn.innerText = "Cerrar y no mostrar más"; cBtn.disabled = false; cBtn.classList.add('ready'); } }, 1000);
+                            cBtn.onclick = () => { localStorage.setItem('welcomeXITDismissed', 'true'); wm.classList.remove('active'); };
+                        }
+                        initialLoad = false; 
+                    }
+                });
+            } else { window.location.href = "login.html?redirect=" + encodeURIComponent(window.location.pathname + window.location.search); }
         });
     </script>
+
+    <script type="module" src="ia.js"></script>
 </body>
 </html>

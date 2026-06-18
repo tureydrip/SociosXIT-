@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Diamantes - Socios XIT </title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* =========================================
+           1. FUENTES Y VARIABLES CÓSMICAS (BASE)
+           ========================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;500;700&display=swap');
+        
+        * { user-select: none; box-sizing: border-box; }
+        
+        :root { 
+            --neon-pink: #ff0055;
+            --neon-blue: #00eeff;
+            --neon-purple: #bc13fe;
+            --neon-green: #00ffcc; 
+            --neon-yellow: #fcee0a;
+            --bg-deep: #030008;
+            --glass-bg: rgba(10, 2, 20, 0.85); 
+            --sidebar-bg: rgba(5, 0, 15, 0.95); 
+        }
+
+        body { 
+            background-color: var(--bg-deep); 
+            background-image: radial-gradient(circle at center, #1a0033 0%, var(--bg-deep) 70%);
+            color: white; 
+            font-family: 'Exo 2', sans-serif; 
+            margin: 0; padding: 0; 
+            min-height: 100dvh; 
+            display: flex; justify-content: flex-start; align-items: center; flex-direction: column; 
+            overflow-x: hidden; 
+        }
+
+        /* Fondos y Animaciones */
+        .cosmic-portal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 100vh; z-index: -2; display: flex; justify-content: center; align-items: center; pointer-events: none; overflow: hidden; }
+        .magic-ring { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
+        .ring-outer { width: 900px; height: 900px; border: 4px dashed rgba(188, 19, 254, 0.3); box-shadow: 0 0 80px rgba(188, 19, 254, 0.4); animation: spinRing 60s linear infinite; }
+        .ring-middle { width: 700px; height: 700px; border: 2px solid rgba(0, 238, 255, 0.2); box-shadow: 0 0 50px rgba(0, 238, 255, 0.3); animation: spinRingReverse 30s linear infinite; }
+        .ring-inner { width: 550px; height: 550px; border: 6px dotted rgba(255, 0, 85, 0.3); box-shadow: 0 0 60px rgba(255, 0, 85, 0.4); animation: spinRing 20s linear infinite; }
+        .stars { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)); background-repeat: repeat; background-size: 200px 200px; animation: twinkle 4s infinite alternate; opacity: 0.4; }
+
+        @keyframes spinRing { 100% { transform: rotate(360deg); } }
+        @keyframes spinRingReverse { 100% { transform: rotate(-360deg); } }
+        @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 0.7; } }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.8; }
+        
+        /* =========================================
+           2. BARRA SUPERIOR
+           ========================================= */
+        .top-bar { 
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
+            width: 95%; max-width: 1000px; 
+            background: rgba(10, 2, 20, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 238, 255, 0.4); border-radius: 15px; 
+            padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 0 20px rgba(0, 238, 255, 0.2); z-index: 100; 
+        }
+        .menu-btn { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; padding: 6px 10px; font-size: 1.5rem; cursor: pointer; transition: 0.3s; box-shadow: inset 0 0 10px rgba(0, 238, 255, 0.2); }
+        .menu-btn:hover { background: rgba(0, 238, 255, 0.1); box-shadow: 0 0 15px var(--neon-blue); transform: scale(1.05); }
+        
+        .top-bar-right { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 2px; }
+        .top-bar-right::-webkit-scrollbar { display: none; }
+        
+        .badge { 
+            display: flex; align-items: center; gap: 6px; 
+            background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; 
+            color: #ddd; white-space: nowrap; cursor: pointer; transition: all 0.3s;
+        }
+        .badge:hover { border-color: var(--neon-pink); box-shadow: 0 0 10px rgba(255, 0, 85, 0.3); color: #fff; transform: translateY(-2px); }
+        .badge img { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--neon-blue); object-fit: cover; }
+        .badge span { color: #fff; font-weight: 700; }
+        
+        .badge.green { border-color: rgba(0, 255, 204, 0.4); cursor: default; }
+        .badge.green span { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); font-size: 0.95rem; }
+        
+        .badge.xitcoin { border-color: rgba(0, 238, 255, 0.5); cursor: default; background: rgba(0, 238, 255, 0.05); }
+        .badge.xitcoin span { color: var(--neon-blue); text-shadow: 0 0 8px var(--neon-blue); font-size: 0.95rem; }
+        .badge.xitcoin i { color: var(--neon-blue); }
+
+        .badge.history-btn { border-color: rgba(188, 19, 254, 0.6); background: rgba(188, 19, 254, 0.1); }
+        .badge.history-btn:hover { background: var(--neon-purple); border-color: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
+        .badge.history-btn i { color: #fff; }
+
+        /* =========================================
+           3. MENÚ LATERAL CYBERPUNK
+           ========================================= */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 998; opacity: 0; visibility: hidden; transition: 0.4s; }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        
+        .sidebar { position: fixed; top: 0; left: -300px; width: 260px; height: 100dvh; background: var(--sidebar-bg); border-right: 2px solid var(--neon-purple); box-shadow: 10px 0 30px rgba(188, 19, 254, 0.2); z-index: 999; transition: left 0.4s; display: flex; flex-direction: column; padding: 20px; padding-bottom: 40px; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(188, 19, 254, 0.4); padding-bottom: 15px; margin-bottom: 20px; }
+        .sidebar-header h2 { margin: 0; font-family: 'Orbitron', sans-serif; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .close-btn { background: transparent; border: none; color: var(--neon-pink); font-size: 2rem; cursor: pointer; transition: 0.3s; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; overflow-y: auto; padding-bottom: 20px; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; color: #ddd; text-decoration: none; padding: 12px 15px; background: rgba(255,255,255,0.02); border-radius: 10px; border-left: 4px solid transparent; transition: 0.3s; }
+        .sidebar-item i { font-size: 1.4rem; color: var(--neon-purple); }
+        .sidebar-item:hover { background: linear-gradient(90deg, rgba(0, 238, 255, 0.15), transparent); border-left: 4px solid var(--neon-blue); color: #fff; transform: translateX(8px); }
+        .sidebar-footer { margin-top: auto; border-top: 1px dashed rgba(188, 19, 254, 0.4); padding-top: 20px; }
+        .logout-btn { width: 100%; background: transparent; border: 1px solid var(--neon-pink); color: var(--neon-pink); padding: 12px; border-radius: 10px; font-weight: 600; font-family: 'Orbitron'; cursor: pointer; display: flex; justify-content: center; gap: 8px; }
+
+        /* =========================================
+           4. DISEÑO CHINGÓN: TIENDA & CARDS
+           ========================================= */
+        .main-wrapper { width: 100%; max-width: 1200px; padding: 100px 20px 40px 20px; z-index: 10; display: flex; flex-direction: column; align-items: center; }
+        
+        .header-container { width: 100%; display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 40px; border-left: 5px solid var(--neon-blue); padding-left: 20px; background: linear-gradient(90deg, rgba(0, 238, 255, 0.05), transparent); padding-top: 10px; padding-bottom: 10px; border-radius: 0 15px 15px 0;}
+        .section-title { font-family: 'Orbitron', sans-serif; color: #fff; font-size: 2.2rem; margin: 0; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px rgba(0, 238, 255, 0.3);}
+        .section-title span.blue-text { color: var(--neon-blue); }
+        
+        .role-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 15px; background: linear-gradient(45deg, rgba(188, 19, 254, 0.2), rgba(0, 238, 255, 0.1)); border: 1px solid var(--neon-purple); border-radius: 30px; color: #fff; font-size: 0.85rem; font-family: 'Orbitron'; margin-top: 10px; box-shadow: 0 0 15px rgba(188, 19, 254, 0.3); letter-spacing: 1px;}
+        .role-badge i { color: var(--neon-yellow); font-size: 1.2rem; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; width: 100%; margin-bottom: 60px; perspective: 1000px;}
+        
+        .premium-card {
+            background: linear-gradient(160deg, rgba(20, 5, 35, 0.8) 0%, rgba(5, 0, 15, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 35px 20px 25px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .premium-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 70%, var(--neon-blue) 80%, transparent 100%);
+            animation: rotateBg 4s linear infinite;
+            opacity: 0; transition: opacity 0.4s ease; z-index: -1;
+        }
+        .premium-card::after {
+            content: ''; position: absolute; inset: 2px; background: rgba(10, 2, 20, 0.95);
+            border-radius: 22px; z-index: -1;
+        }
+
+        .premium-card:hover { transform: translateY(-12px) scale(1.03); z-index: 2; box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 238, 255, 0.2); }
+        .premium-card:hover::before { opacity: 1; }
+        
+        @keyframes rotateBg { 100% { transform: rotate(360deg); } }
+
+        .card-img-wrapper {
+            width: 130px; height: 130px;
+            margin-bottom: 25px;
+            display: flex; justify-content: center; align-items: center;
+            animation: floatImg 6s ease-in-out infinite;
+            transition: transform 0.4s ease, filter 0.4s ease;
+            filter: drop-shadow(0 10px 15px rgba(0, 238, 255, 0.3));
+        }
+        .premium-card:hover .card-img-wrapper { transform: scale(1.2) translateY(-10px); filter: drop-shadow(0 15px 25px rgba(0, 238, 255, 0.6)); animation-play-state: paused; }
+        .card-img-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        @keyframes floatImg { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .card-title { font-size: 1.3rem; font-weight: 800; font-family: 'Orbitron', sans-serif; color: #fff; text-align: center; letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase;}
+        .card-price-box { background: rgba(0,0,0,0.5); padding: 8px 20px; border-radius: 12px; margin: 15px 0 25px 0; border: 1px dashed rgba(255, 0, 85, 0.4); display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .card-price { font-size: 1.8rem; font-family: 'Orbitron', sans-serif; color: var(--neon-pink); font-weight: 900; text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); line-height: 1; }
+        .card-currency { font-size: 0.8rem; color: #aaa; font-family: 'Exo 2'; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+        
+        .btn-buy-modern {
+            width: 100%; background: linear-gradient(90deg, rgba(0, 238, 255, 0.1), rgba(0, 238, 255, 0.05));
+            color: var(--neon-blue); border: 1px solid var(--neon-blue); border-radius: 12px;
+            padding: 14px; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease;
+            display: flex; justify-content: center; align-items: center; gap: 8px; position: relative; overflow: hidden;
+        }
+        .btn-buy-modern::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0, 238, 255, 0.4), transparent); transition: left 0.5s ease; }
+        .btn-buy-modern:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); transform: translateY(-2px); }
+        .btn-buy-modern:hover::before { left: 100%; }
+        .btn-buy-modern i { font-size: 1.3rem; }
+
+        .modern-hud-panel {
+            background: linear-gradient(135deg, rgba(15, 5, 25, 0.9), rgba(5, 0, 10, 0.95));
+            border: 1px solid rgba(188, 19, 254, 0.3); border-radius: 20px;
+            padding: 30px; margin-bottom: 40px; width: 100%; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(188, 19, 254, 0.1);
+        }
+        .modern-hud-panel::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
+        .modern-hud-panel h3 { color: #fff; margin: 0 0 20px 0; display: flex; align-items: center; gap: 12px; font-family: 'Orbitron'; font-size: 1.4rem; letter-spacing: 1px; }
+        .modern-hud-panel h3 i { color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple); font-size: 1.8rem;}
+        .hud-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .hud-item { display: flex; align-items: flex-start; gap: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .hud-item:hover { background: rgba(188, 19, 254, 0.05); border-color: rgba(188, 19, 254, 0.3); transform: translateX(5px); }
+        .hud-icon { background: rgba(0, 238, 255, 0.1); color: var(--neon-blue); padding: 10px; border-radius: 10px; font-size: 1.4rem; display: flex; justify-content: center; align-items: center; }
+        .hud-text { font-size: 0.95rem; color: #bbb; line-height: 1.5; }
+        .hud-text strong { color: #fff; font-weight: 700; }
+
+        /* =========================================
+           5. MODALES Y POPUPS GENERALES
+           ========================================= */
+        .epic-popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.4s ease; }
+        .epic-popup-overlay.show { opacity: 1; visibility: visible; }
+        .epic-popup-box { background: var(--glass-bg); border-radius: 24px; padding: 40px 30px; width: 90%; max-width: 450px; text-align: center; transform: scale(0.8) translateY(50px); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(0,0,0,0.8); border: 2px solid var(--neon-blue); position: relative; }
+        .epic-popup-overlay.show .epic-popup-box { transform: scale(1) translateY(0); box-shadow: 0 0 40px rgba(0, 238, 255, 0.2); }
+        
+        .epic-icon-wrapper { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; background: rgba(0, 238, 255, 0.1); color: var(--neon-blue); border: 2px solid var(--neon-blue); }
+        .epic-title { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .epic-msg { font-size: 1rem; color: #ddd; margin-bottom: 20px; line-height: 1.6; }
+        
+        .ff-input { width: 100%; background: rgba(0,0,0,0.6); border: 1px solid rgba(0, 238, 255, 0.5); color: white; padding: 15px; border-radius: 12px; font-family: 'Orbitron'; font-size: 1.2rem; text-align: center; margin-bottom: 20px; transition: 0.3s; letter-spacing: 2px;}
+        .ff-input:focus { outline: none; box-shadow: 0 0 20px rgba(0, 238, 255, 0.4); border-color: var(--neon-blue); }
+        
+        .btn-epic-secondary { width: 100%; background: transparent; border: 2px solid #555; color: #aaa; padding: 14px; border-radius: 12px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem;}
+        .btn-epic-secondary:hover { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(0, 238, 255, 0.05); }
+        .btn-epic-primary { width: 100%; background: linear-gradient(90deg, rgba(255, 0, 85, 0.8), var(--neon-pink)); border: none; color: white; padding: 14px; border-radius: 12px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);}
+        .btn-epic-primary:hover { box-shadow: 0 0 25px var(--neon-pink); transform: translateY(-2px); }
+        
+        .buttons-row { display: flex; gap: 15px; }
+
+        /* =========================================
+           6. MODAL DE HISTORIAL
+           ========================================= */
+        .history-box { max-width: 700px; padding: 30px 20px; border-color: var(--neon-purple); }
+        .close-history-btn { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: #aaa; font-size: 1.8rem; cursor: pointer; transition: 0.3s; }
+        .close-history-btn:hover { color: var(--neon-pink); transform: rotate(90deg); }
+        
+        .history-tabs { display: flex; border-bottom: 2px solid rgba(188, 19, 254, 0.3); margin-bottom: 20px; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: #888; font-family: 'Orbitron'; font-size: 1rem; padding: 12px; cursor: pointer; transition: 0.3s; position: relative; }
+        .tab-btn.active { color: var(--neon-purple); text-shadow: 0 0 10px rgba(188, 19, 254, 0.5); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
+        .tab-btn:hover:not(.active) { color: #ccc; }
+
+        .tab-content { display: none; text-align: left; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .status-section { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .status-section h3 { margin: 0 0 15px 0; font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; display: flex; align-items: center; gap: 8px; }
+        .history-list { max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .history-list::-webkit-scrollbar { width: 6px; }
+        .history-list::-webkit-scrollbar-thumb { background: rgba(188, 19, 254, 0.5); border-radius: 10px; }
+        
+        .history-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid transparent; }
+        .history-item:hover { background: rgba(255,255,255,0.06); }
+        .history-item.pending-item { border-left-color: var(--neon-yellow); }
+        .history-item.approved-item { border-left-color: var(--neon-green); }
+        
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .status-badge.pending { background: rgba(252, 238, 10, 0.1); color: var(--neon-yellow); border: 1px solid var(--neon-yellow); }
+        .status-badge.approved { background: rgba(0, 255, 204, 0.1); color: var(--neon-green); border: 1px solid var(--neon-green); }
+
+        .total-spent-box { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, rgba(255, 0, 85, 0.2), transparent); border: 1px solid var(--neon-pink); padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; }
+        .total-spent-box span { font-family: 'Orbitron'; font-size: 1.2rem; color: #fff; }
+        .total-spent-box strong { font-size: 1.8rem; color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 0, 85, 0.5); }
+
+        .history-table-wrapper { max-height: 250px; overflow-y: auto; }
+        .history-table-wrapper::-webkit-scrollbar { width: 6px; }
+        .history-table-wrapper::-webkit-scrollbar-thumb { background: rgba(255, 0, 85, 0.5); border-radius: 10px; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .history-table th { background: rgba(255, 255, 255, 0.05); color: var(--neon-blue); padding: 10px; text-align: left; font-family: 'Orbitron'; position: sticky; top: 0; }
+        .history-table td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; }
+        .history-table tr:hover td { background: rgba(255,255,255,0.02); color: #fff; }
+
+    </style>
+</head>
+<body oncontextmenu="return false;"> 
+
+    <div class="cosmic-portal">
+        <div class="stars"></div>
+        <div class="magic-ring ring-outer"></div>
+        <div class="magic-ring ring-middle"></div>
+        <div class="magic-ring ring-inner"></div>
+    </div>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <button class="menu-btn" id="openMenuBtn"><i class='bx bx-menu'></i></button>
+        </div>
+        <div class="top-bar-right">
+            <div class="badge history-btn" onclick="openHistoryPopup()">
+                <i class='bx bx-receipt'></i> <span>Mis Compras</span>
+            </div>
+            <div class="badge"><i class='bx bx-calendar'></i> <span id="joinDateDisplay">--/--/----</span></div>
+            <div class="badge" onclick="window.location.href='perfil.html'">
+                <img id="topAvatar" src="https://via.placeholder.com/30/14001e/bc13fe?text=U"> 
+                <span id="topUserDisplay">...</span>
+            </div>
+            <div class="badge green"><span>$</span><span id="balanceDisplay">0.00</span></div>
+            <div class="badge xitcoin" title="Saldo XitCoins">
+                <i class='bx bxs-diamond'></i><span id="xitcoinsDisplay">0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Socios XIT </h2>
+            <button class="close-btn" id="closeMenuBtn"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><i class='bx bx-home-alt-2'></i> Inicio</a>
+            <a href="perfil.html" class="sidebar-item"><i class='bx bx-user-circle'></i> Mi Perfil</a>
+            <a href="diamantes.html" class="sidebar-item" style="border-left: 4px solid var(--neon-blue); background: linear-gradient(90deg, rgba(0, 238, 255, 0.15), transparent); color: var(--neon-blue);"><i class='bx bxs-diamond' style="color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue);"></i> Tienda Diamantes</a>
+            <a href="index.html" class="sidebar-item"><i class='bx bx-store-alt'></i> Store General</a>
+            <a href="recarga.html" class="sidebar-item"><i class='bx bx-wallet'></i> Recargar Saldo</a>
+            <a href="historial.html" class="sidebar-item"><i class='bx bx-history'></i> Mis Compras</a>
+        </div>
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="logoutMenuBtn"><i class='bx bx-log-out'></i> Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- ÁREA PRINCIPAL -->
+    <div class="main-wrapper">
+        
+        <div class="header-container">
+            <h2 class="section-title">Store <span class="blue-text">Diamantes</span></h2>
+            <div id="userRoleBadge" class="role-badge" style="display: none;">
+                <i class='bx bxs-crown'></i> RANGO SOCIO ACTIVO DESBLOQUEADO
+            </div>
+        </div>
+
+        <div class="grid" id="packagesGrid"></div>
+
+        <div class="modern-hud-panel">
+            <h3><i class='bx bx-radar'></i> Transmisión de Protocolo de Recarga</h3>
+            <div class="hud-grid">
+                <div class="hud-item">
+                    <div class="hud-icon"><i class='bx bx-wallet'></i></div>
+                    <div class="hud-text">El costo será descontado automáticamente de tu saldo. <strong>XitCoins</strong> si eres Socio, o <strong>Saldo Normal</strong> si eres Cliente.</div>
+                </div>
+                <div class="hud-item">
+                    <div class="hud-icon"><i class='bx bx-id-card'></i></div>
+                    <div class="hud-text">Asegúrate de ingresar el <strong>ID de Jugador Exacto</strong>. Nuestro servidor se conectará directo a la cuenta de Free Fire especificada.</div>
+                </div>
+                <div class="hud-item">
+                    <div class="hud-icon"><i class='bx bx-time-five'></i></div>
+                    <div class="hud-text">El sistema sincroniza los pedidos en la base de datos central. La inyección de diamantes puede tardar <strong>hasta 2 horas</strong>.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODALES -->
+    <div id="buyPopupOverlay" class="epic-popup-overlay">
+        <div class="epic-popup-box">
+            <div class="epic-icon-wrapper" id="modalImgWrapper" style="background: transparent; border: none; height: auto;">
+                <!-- Aquí se inyecta la imagen local -->
+            </div>
+            <h2 class="epic-title" id="buyPackageName">Nombre Paquete</h2>
+            <p class="epic-msg" style="color: var(--neon-pink); font-size: 1.6rem; font-family: 'Orbitron'; font-weight: 900; margin-top: -10px;">
+                <span id="buyPackagePrice">0.00</span> <span id="buyCurrencyLabel" style="font-size: 1rem; color:#aaa; font-family: 'Exo 2';">XitCoins</span>
+            </p>
+            
+            <input type="number" id="freeFireIdInput" class="ff-input" placeholder="INGRESA ID DE JUGADOR">
+            
+            <div id="buyErrorMsg" style="color: #ff0055; font-size: 0.9rem; margin-bottom: 15px; display: none; text-shadow: 0 0 5px red;"></div>
+            
+            <div class="buttons-row">
+                <button onclick="closeBuyPopup()" class="btn-epic-secondary">CANCELAR</button>
+                <button id="confirmPayBtn" class="btn-epic-primary">CONFIRMAR PAGO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successPopupOverlay" class="epic-popup-overlay">
+        <div class="epic-popup-box" style="border-color: var(--neon-green);">
+            <div class="epic-icon-wrapper" style="color: var(--neon-green); border-color: var(--neon-green); background: rgba(0,255,204,0.1);"><i class='bx bx-check-double'></i></div>
+            <h2 class="epic-title" style="color: var(--neon-green); text-shadow: 0 0 10px var(--neon-green);">¡PAGO EXITOSO!</h2>
+            <p class="epic-msg">Tu pedido ha sido registrado correctamente en la central.</p>
+            <p class="epic-msg" style="background: rgba(255,0,0,0.1); border: 1px dashed red; padding: 10px; border-radius: 8px;">
+                ⚠️ <strong>Aviso Importante:</strong> Los diamantes pueden tardar <strong>hasta 2 horas</strong> en ser procesados e inyectados en la cuenta.
+            </p>
+            <button onclick="closeSuccessPopup()" class="btn-epic-secondary" style="border-color: var(--neon-green); color: var(--neon-green);">ENTENDIDO</button>
+        </div>
+    </div>
+
+    <div id="upgradePopupOverlay" class="epic-popup-overlay">
+        <div class="epic-popup-box" style="border-color: var(--neon-purple);">
+            <div class="epic-icon-wrapper" style="color: var(--neon-purple); border-color: var(--neon-purple); background: rgba(188, 19, 254,0.1);"><i class='bx bxs-crown'></i></div>
+            <h2 class="epic-title" style="color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple);">¡NUEVO RANGO DESBLOQUEADO!</h2>
+            <p class="epic-msg">Has superado los $15.00 en compras totales.</p>
+            <p class="epic-msg" style="color: var(--neon-blue); font-weight: bold; font-size: 1.1rem;">
+                ¡Felicidades! Ahora eres <span style="color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple);">SOCIO ACTIVO</span>.
+            </p>
+            <p class="epic-msg" style="font-size: 0.9rem;">
+                A partir de ahora, disfrutarás de <strong>precios especiales reducidos</strong> y realizarás tus compras usando exclusivamente tu saldo de <strong>XitCoins</strong>.
+            </p>
+            <button onclick="closeUpgradePopup()" class="btn-epic-secondary" style="border-color: var(--neon-purple); color: var(--neon-purple);">¡INCREÍBLE!</button>
+        </div>
+    </div>
+
+    <div id="historyPopupOverlay" class="epic-popup-overlay">
+        <div class="epic-popup-box history-box">
+            <button class="close-history-btn" onclick="closeHistoryPopup()"><i class='bx bx-x'></i></button>
+            <h2 class="epic-title" style="color: var(--neon-purple); text-shadow: 0 0 10px rgba(188, 19, 254, 0.5);">
+                <i class='bx bx-history'></i> Panel de Control
+            </h2>
+
+            <div class="history-tabs">
+                <button class="tab-btn active" onclick="switchHistoryTab('recargas', this)">Estado de Recargas</button>
+                <button class="tab-btn" onclick="switchHistoryTab('gastos', this)">Detalle de Gastos</button>
+            </div>
+
+            <div id="tab-recargas" class="tab-content active">
+                <div class="status-section">
+                    <h3><i class='bx bx-time-five' style="color: var(--neon-yellow);"></i> Órdenes Pendientes</h3>
+                    <div id="pendingOrdersList" class="history-list"></div>
+                </div>
+                <div class="status-section" style="margin-top: 15px;">
+                    <h3><i class='bx bx-check-double' style="color: var(--neon-green);"></i> Órdenes Aprobadas</h3>
+                    <div id="approvedOrdersList" class="history-list"></div>
+                </div>
+            </div>
+
+            <div id="tab-gastos" class="tab-content">
+                <div class="total-spent-box">
+                    <span>Total Invertido:</span>
+                    <strong><i class='bx bx-dollar'></i><span id="totalSpentValue">0.00</span></strong>
+                </div>
+                <div class="history-table-wrapper">
+                    <table class="history-table">
+                        <thead>
+                            <tr><th>Fecha</th><th>Paquete</th><th>ID Destino</th><th>Costo</th></tr>
+                        </thead>
+                        <tbody id="expensesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('openMenuBtn').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
+        document.getElementById('closeMenuBtn').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+
+        const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; } window.addEventListener('resize', resize); resize();
+        class Particle { constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5); this.vy = (Math.random() - 0.5); this.size = Math.random() * 2 + 1; this.color = Math.random() > 0.5 ? 'rgba(0, 243, 255, ' : 'rgba(188, 19, 254, '; this.alpha = Math.random() * 0.5 + 0.2; } update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color + this.alpha + ')'; ctx.fill(); } }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0, 0, width, height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); } animate();
+
+        window.switchHistoryTab = (tabId, btnElement) => {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            btnElement.classList.add('active');
+        };
+    </script>
+
+    <script type="module">
+        import { auth, db, onAuthStateChanged, signOut, ref, child } from './firebase-config.js';
+        import { onValue, update, push, serverTimestamp, query, orderByChild, equalTo, get as getDB } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // ================= CONFIGURACIÓN DE PAQUETES CON IMÁGENES LOCALES =================
+        const packages = [
+            { id: "pkg_110", name: "110 Diamantes", priceClient: 1.01, priceSocio: 0.95, amount: 110, img: "Logo/110diamantes.png" },
+            { id: "pkg_220", name: "220 Diamantes", priceClient: 2.02, priceSocio: 1.90, amount: 220, img: "Logo/110diamantes.png" },
+            { id: "pkg_341", name: "341 Diamantes", priceClient: 3.34, priceSocio: 3.10, amount: 341, img: "Logo/110diamantes.png" },
+            { id: "pkg_572", name: "572 Diamantes", priceClient: 4.67, priceSocio: 4.30, amount: 572, img: "Logo/572diamantes.png" },
+            { id: "pkg_1160", name: "1160 Diamantes", priceClient: 8.68, priceSocio: 8.00, amount: 1160, img: "Logo/1160diamantes.png" },
+            { id: "pkg_2398", name: "2398 Diamantes", priceClient: 17.35, priceSocio: 16.00, amount: 2398, img: "Logo/2398diamantes.png" },
+            { id: "pkg_6160", name: "6160 Diamantes", priceClient: 43.78, priceSocio: 40.50, amount: 6160, img: "Logo/6160diamantes.png" }
+        ];
+
+        let currentUser = null;
+        let userData = null;
+        let selectedPackage = null;
+        let userIsSocio = false;
+
+        document.getElementById('logoutMenuBtn').onclick = (e) => {
+            e.preventDefault();
+            signOut(auth).then(()=>window.location.href="login.html");
+        };
+
+        function renderStore() {
+            const grid = document.getElementById('packagesGrid');
+            grid.innerHTML = ''; 
+            
+            if(userIsSocio) {
+                document.getElementById('userRoleBadge').style.display = 'inline-flex';
+            } else {
+                document.getElementById('userRoleBadge').style.display = 'none';
+            }
+
+            packages.forEach(pkg => {
+                const finalPrice = userIsSocio ? pkg.priceSocio : pkg.priceClient;
+                const currencyDisplay = userIsSocio ? "XitCoins" : "$ Saldo";
+                
+                grid.innerHTML += `
+                    <div class="premium-card">
+                        <div class="card-img-wrapper">
+                            <img src="${pkg.img}" alt="Diamantes Free Fire" onerror="this.src='https://cdn-icons-png.flaticon.com/512/755/755106.png'">
+                        </div>
+                        <div class="card-title">${pkg.name}</div>
+                        <div class="card-price-box">
+                            <div class="card-price">${finalPrice.toFixed(2)}</div>
+                            <div class="card-currency">${currencyDisplay}</div>
+                        </div>
+                        <button class="btn-buy-modern" onclick="window.openBuyPopup('${pkg.id}')">
+                            <i class='bx bx-cart-add'></i> ADQUIRIR PAQUETE
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        window.openBuyPopup = (packageId) => {
+            selectedPackage = packages.find(p => p.id === packageId);
+            if(!selectedPackage) return;
+
+            const finalPrice = userIsSocio ? selectedPackage.priceSocio : selectedPackage.priceClient;
+            const currencyDisplay = userIsSocio ? "XitCoins" : "Saldo Normal";
+            
+            document.getElementById('modalImgWrapper').innerHTML = `<img src="${selectedPackage.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/755/755106.png'" style="width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(0,238,255,0.5));">`;
+            
+            document.getElementById('buyPackageName').innerText = selectedPackage.name;
+            document.getElementById('buyPackagePrice').innerText = finalPrice.toFixed(2);
+            document.getElementById('buyCurrencyLabel').innerText = currencyDisplay;
+
+            document.getElementById('freeFireIdInput').value = '';
+            document.getElementById('buyErrorMsg').style.display = 'none';
+            document.getElementById('buyPopupOverlay').classList.add('show');
+        };
+
+        window.closeBuyPopup = () => document.getElementById('buyPopupOverlay').classList.remove('show');
+        window.closeSuccessPopup = () => document.getElementById('successPopupOverlay').classList.remove('show');
+        window.closeUpgradePopup = () => document.getElementById('upgradePopupOverlay').classList.remove('show');
+
+        document.getElementById('confirmPayBtn').onclick = async () => {
+            if (!currentUser || !userData || !selectedPackage) return;
+
+            const ffId = document.getElementById('freeFireIdInput').value.trim();
+            const errorMsg = document.getElementById('buyErrorMsg');
+            
+            if (ffId === "" || ffId.length < 5) {
+                errorMsg.innerText = "Error: ID de Jugador Inválido.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const finalPrice = userIsSocio ? selectedPackage.priceSocio : selectedPackage.priceClient;
+            const currentBalance = userIsSocio ? parseFloat(userData.xitcoins || 0) : parseFloat(userData.balance || 0);
+            const currencyName = userIsSocio ? "XitCoins" : "Saldo Normal";
+
+            if (currentBalance < finalPrice) {
+                errorMsg.innerText = `❌ Saldo insuficiente de ${currencyName}.`;
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const btn = document.getElementById('confirmPayBtn');
+            btn.innerText = "PROCESANDO...";
+            btn.disabled = true;
+
+            try {
+                const newBalance = currentBalance - finalPrice;
+                const userRef = ref(db, `users/${currentUser.uid}`);
+                const updatePayload = userIsSocio ? { xitcoins: newBalance } : { balance: newBalance };
+                await update(userRef, updatePayload);
+
+                const ordersRef = ref(db, 'diamond_orders');
+                await push(ordersRef, {
+                    uid: currentUser.uid,
+                    username: userData.username || "Desconocido",
+                    paquete: selectedPackage.name,
+                    cantidad_diamantes: selectedPackage.amount,
+                    precio_cobrado: finalPrice,
+                    metodo_pago: currencyName, 
+                    id_free_fire: ffId,
+                    estado: "Pendiente",
+                    fecha: serverTimestamp()
+                });
+
+                if (!userIsSocio) {
+                    const q = query(ordersRef, orderByChild('uid'), equalTo(currentUser.uid));
+                    const snapshot = await getDB(q);
+                    
+                    let totalSpentNow = 0;
+                    if (snapshot.exists()) {
+                        snapshot.forEach(child => totalSpentNow += parseFloat(child.val().precio_cobrado || 0));
+                    }
+
+                    if (totalSpentNow >= 15) {
+                        await update(userRef, { isSocio: true });
+                        window.closeBuyPopup();
+                        document.getElementById('upgradePopupOverlay').classList.add('show');
+                        loadUserHistory();
+                        btn.innerText = "CONFIRMAR PAGO";
+                        btn.disabled = false;
+                        return;
+                    }
+                }
+
+                window.closeBuyPopup();
+                document.getElementById('successPopupOverlay').classList.add('show');
+                loadUserHistory();
+
+            } catch (error) {
+                console.error("Error procesando compra:", error);
+                errorMsg.innerText = "Error de conexión. Intenta nuevamente.";
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.innerText = "CONFIRMAR PAGO";
+                btn.disabled = false;
+            }
+        };
+
+        window.openHistoryPopup = () => {
+            document.getElementById('historyPopupOverlay').classList.add('show');
+            loadUserHistory();
+        };
+
+        window.closeHistoryPopup = () => document.getElementById('historyPopupOverlay').classList.remove('show');
+
+        function loadUserHistory() {
+            if (!currentUser) return;
+            const ordersRef = ref(db, 'diamond_orders');
+            const q = query(ordersRef, orderByChild('uid'), equalTo(currentUser.uid));
+
+            onValue(q, (snapshot) => {
+                const pendingList = document.getElementById('pendingOrdersList');
+                const approvedList = document.getElementById('approvedOrdersList');
+                const expensesTable = document.getElementById('expensesTableBody');
+                
+                pendingList.innerHTML = '';
+                approvedList.innerHTML = '';
+                expensesTable.innerHTML = '';
+                let totalSpent = 0;
+
+                if (snapshot.exists()) {
+                    let orders = [];
+                    snapshot.forEach(child => orders.push({ key: child.key, ...child.val() }));
+                    orders.reverse();
+
+                    orders.forEach(order => {
+                        const price = parseFloat(order.precio_cobrado || 0);
+                        totalSpent += price;
+                        
+                        let dateStr = "Procesando...";
+                        if (order.fecha) {
+                            const d = new Date(order.fecha);
+                            dateStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                        }
+
+                        const isPending = order.estado === 'Pendiente';
+                        const itemHtml = `
+                            <div class="history-item ${isPending ? 'pending-item' : 'approved-item'}">
+                                <div><strong style="color: #fff;">${order.paquete}</strong><br><span style="font-size: 0.8rem; color: #888;">ID: <span style="color:var(--neon-blue);">${order.id_free_fire}</span></span></div>
+                                <div class="status-badge ${isPending ? 'pending' : 'approved'}">${order.estado}</div>
+                            </div>
+                        `;
+
+                        if (isPending) pendingList.innerHTML += itemHtml;
+                        else approvedList.innerHTML += itemHtml;
+
+                        expensesTable.innerHTML += `
+                            <tr><td style="font-size: 0.8rem;">${dateStr}</td><td style="color: #fff;">${order.paquete}</td><td style="font-family: monospace; color: var(--neon-blue);">${order.id_free_fire}</td><td style="color: var(--neon-pink); font-family: 'Orbitron';">-$${price.toFixed(2)}</td></tr>
+                        `;
+                    });
+
+                    if(pendingList.innerHTML === '') pendingList.innerHTML = '<p style="color:#666; text-align:center; padding: 10px;">Sin órdenes pendientes.</p>';
+                    if(approvedList.innerHTML === '') approvedList.innerHTML = '<p style="color:#666; text-align:center; padding: 10px;">Aún no hay órdenes completadas.</p>';
+
+                } else {
+                    const noDataHtml = '<p style="color:#666; text-align:center; padding: 15px;">No se encontraron registros.</p>';
+                    pendingList.innerHTML = noDataHtml;
+                    approvedList.innerHTML = noDataHtml;
+                    expensesTable.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#666;">Sin gastos registrados.</td></tr>`;
+                }
+
+                document.getElementById('totalSpentValue').innerText = totalSpent.toFixed(2);
+            });
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                const d = new Date(user.metadata.creationTime);
+                document.getElementById('joinDateDisplay').innerText = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+
+                const userRef = ref(db, `users/${user.uid}`);
+                
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        userData = snapshot.val();
+                        userIsSocio = userData.isSocio === true; 
+                        
+                        document.getElementById('topUserDisplay').innerText = userData.username || "Usuario";
+                        if(userData.avatar) document.getElementById('topAvatar').src = userData.avatar;
+                        
+                        document.getElementById('balanceDisplay').innerText = parseFloat(userData.balance || 0).toFixed(2);
+                        document.getElementById('xitcoinsDisplay').innerText = parseFloat(userData.xitcoins || 0).toFixed(2);
+
+                        renderStore();
+                    }
+                });
+            } else { 
+                window.location.href = "login.html"; 
+            }
+        });
+    </script>
+</body>
+</html>

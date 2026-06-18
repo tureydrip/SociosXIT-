@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking & Premios - LUCK XIT</title>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <style>
+        /* =========================================
+           1. FUENTES Y PROTECCIÓN
+           ========================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700;800&display=swap');
+
+        * { user-select: none; box-sizing: border-box; }
+
+        :root {
+            --neon-purple: #bc13fe;
+            --neon-red: #ff073a;
+            --neon-cyan: #00f3ff;
+            --neon-green: #00ffcc;
+            --glass-bg: rgba(15, 0, 25, 0.7);
+            --sidebar-bg: rgba(5, 10, 20, 0.95);
+        }
+
+        body {
+            background-color: #020005;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin: 0; padding: 0;
+            min-height: 100dvh; 
+            display: flex; flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020202; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; box-shadow: 0 0 10px var(--neon-cyan); }
+
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        /* =========================================
+           2. BARRA DE NAVEGACIÓN Y MENÚ MÁS DINÁMICO
+           ========================================= */
+        .top-bar {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+            width: 95%; max-width: 700px;
+            background: rgba(5, 10, 20, 0.85); backdrop-filter: blur(15px);
+            border: 1px solid var(--neon-cyan); border-radius: 12px;
+            padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); z-index: 100;
+        }
+
+        .menu-btn {
+            background: transparent; border: 1px solid var(--neon-cyan); color: var(--neon-cyan);
+            border-radius: 8px; padding: 6px 10px; font-size: 1.5rem; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .menu-btn:hover { box-shadow: 0 0 15px var(--neon-cyan); background: rgba(0, 243, 255, 0.1); transform: translateY(-2px); }
+        .menu-btn:active { transform: scale(0.9); box-shadow: 0 0 5px var(--neon-cyan); } /* Feedback táctil */
+
+        .top-bar-right { display: flex; align-items: center; gap: 10px; overflow-x: auto; padding-bottom: 2px; }
+        .top-bar-right::-webkit-scrollbar { display: none; }
+        
+        .badge {
+            display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 12px; border-radius: 20px;
+            font-size: 0.8rem; font-family: 'Poppins', sans-serif; color: #aaa; white-space: nowrap; cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .badge:hover { border-color: var(--neon-cyan); transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0, 243, 255, 0.2); }
+        .badge:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0, 243, 255, 0.2); } /* Feedback táctil */
+        
+        .badge i { font-size: 1.1rem; color: var(--neon-cyan); }
+        .badge span { color: #fff; font-weight: 600; }
+        .badge.green { border-color: rgba(0, 255, 204, 0.3); cursor: default;}
+        .badge.green:hover { transform: none; box-shadow: none; }
+        .badge.green:active { transform: scale(0.95); }
+        .badge.green i, .badge.green span { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
+
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); z-index: 998;
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease;
+        }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+        .sidebar {
+            position: fixed; top: 0; left: -300px; width: 260px; height: 100dvh; 
+            background: var(--sidebar-bg); border-right: 1px solid var(--neon-cyan);
+            box-shadow: 5px 0 30px rgba(0, 243, 255, 0.2); z-index: 999;
+            transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; padding: 20px; padding-bottom: 40px; 
+        }
+        .sidebar.active { left: 0; }
+
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; }
+        .sidebar-header h2 { margin: 0; font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); font-size: 1.2rem; text-shadow: 0 0 10px var(--neon-cyan); }
+        
+        .close-btn { background: transparent; border: none; color: white; font-size: 2rem; cursor: pointer; transition: all 0.3s ease; }
+        .close-btn:hover { color: var(--neon-red); transform: rotate(90deg) scale(1.1); text-shadow: 0 0 10px var(--neon-red); }
+        .close-btn:active { transform: rotate(90deg) scale(0.9); } /* Feedback táctil */
+
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; overflow-y: auto; padding-bottom: 20px; overflow-x: hidden; }
+        .sidebar-menu::-webkit-scrollbar { display: none; }
+
+        /* ITEMS DEL MENÚ DINÁMICOS */
+        .sidebar-item {
+            display: flex; align-items: center; gap: 12px; color: white; text-decoration: none;
+            padding: 12px 15px; background: rgba(255,255,255,0.02); border-radius: 10px;
+            font-size: 0.95rem; flex-shrink: 0; position: relative; overflow: hidden;
+            border-left: 4px solid transparent;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0; transform: translateX(-30px); /* Para animación inicial */
+        }
+        
+        /* Animación en cascada cuando se abre el sidebar */
+        .sidebar.active .sidebar-item { animation: slideInItem 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .sidebar.active .sidebar-item:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar.active .sidebar-item:nth-child(2) { animation-delay: 0.15s; }
+        .sidebar.active .sidebar-item:nth-child(3) { animation-delay: 0.2s; }
+        .sidebar.active .sidebar-item:nth-child(4) { animation-delay: 0.25s; }
+        .sidebar.active .sidebar-item:nth-child(5) { animation-delay: 0.3s; }
+        .sidebar.active .sidebar-item:nth-child(6) { animation-delay: 0.35s; }
+        .sidebar.active .sidebar-item:nth-child(7) { animation-delay: 0.4s; }
+        .sidebar.active .sidebar-item:nth-child(8) { animation-delay: 0.45s; }
+
+        @keyframes slideInItem { to { opacity: 1; transform: translateX(0); } }
+
+        .sidebar-item i { font-size: 1.4rem; color: var(--neon-purple); transition: 0.3s; }
+        
+        /* Hover y Click animado */
+        .sidebar-item:hover { 
+            background: linear-gradient(90deg, rgba(0, 243, 255, 0.15), transparent); 
+            border-left: 4px solid var(--neon-cyan); color: var(--neon-cyan); 
+            transform: translateX(8px); /* Deslizamiento al pasar el cursor */
+            box-shadow: -5px 0 15px rgba(0, 243, 255, 0.2);
+        }
+        .sidebar-item:hover i { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); transform: scale(1.1); }
+        .sidebar-item:active { transform: scale(0.95) translateX(5px); } /* Hundimiento en click */
+        
+        .sidebar-footer { margin-top: auto; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px; flex-shrink: 0; }
+        
+        /* Botón Logout Dinámico */
+        .logout-btn {
+            width: 100%; background: transparent; border: 1px solid var(--neon-red); color: var(--neon-red);
+            padding: 12px; border-radius: 10px; font-family: 'Poppins', sans-serif; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px;
+            position: relative; overflow: hidden; z-index: 1;
+        }
+        .logout-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 7, 58, 0.4), transparent);
+            transition: left 0.5s ease; z-index: -1;
+        }
+        .logout-btn:hover { background: rgba(255, 7, 58, 0.1); box-shadow: 0 0 20px rgba(255, 7, 58, 0.5); text-shadow: 0 0 5px var(--neon-red); }
+        .logout-btn:hover::before { left: 100%; }
+        .logout-btn:active { transform: scale(0.92); } /* Feedback táctil */
+
+        /* Información de Versión Animada */
+        .sidebar-version {
+            text-align: center; margin-top: 20px; font-family: 'Poppins', sans-serif; color: #666; font-size: 0.75rem; display: flex; flex-direction: column; gap: 5px;
+        }
+        .sidebar-version p { margin: 0; transition: color 0.3s; }
+        .sidebar-version:hover p { color: #aaa; }
+        .version-badge {
+            display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+            color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: bold;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.6); margin-top: 5px;
+            animation: pulseV4 2s infinite alternate ease-in-out;
+        }
+        @keyframes pulseV4 {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.4)); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 0 12px rgba(0, 243, 255, 0.9)); }
+        }
+
+        /* =========================================
+           3. ESTILOS DE RANKING Y PODIO
+           ========================================= */
+        .ranking-wrapper {
+            width: 95%; max-width: 900px; margin: 90px auto 30px auto;
+            display: flex; flex-direction: column; align-items: center;
+            z-index: 10;
+        }
+
+        .title-container { text-align: center; margin-bottom: 20px; position: relative; }
+        .title-blur { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; filter: blur(20px); opacity: 0.4; font-size: 4rem; font-weight: 900; color: var(--neon-purple); }
+        .main-title { font-size: 3rem; font-weight: 900; font-family: 'Orbitron', sans-serif; background: linear-gradient(to right, var(--neon-cyan), #fff, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; font-style: italic; letter-spacing: 2px; filter: drop-shadow(0 0 10px rgba(0,243,255,0.6)); margin: 0; position: relative; z-index: 1; }
+        .sub-title { color: var(--neon-cyan); font-size: 0.8rem; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; margin-top: 5px; text-shadow: 0 0 5px var(--neon-cyan); }
+
+        /* NUEVO PODIO TOP 3 */
+        .podium-container {
+            display: flex; justify-content: center; align-items: flex-end; gap: 10px; 
+            margin-bottom: 40px; width: 100%; max-width: 600px;
+        }
+        
+        .podium-card {
+            background: var(--glass-bg); backdrop-filter: blur(10px); 
+            border-radius: 15px; padding: 15px 5px; text-align: center; 
+            position: relative; width: 30%; display: flex; flex-direction: column; align-items: center;
+            transition: 0.3s;
+        }
+        
+        .podium-card img {
+            width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; background: #111;
+        }
+        
+        .podium-card .medal { font-size: 2.2rem; position: absolute; top: -25px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
+        
+        /* ORO */
+        .podium-card.top1 { 
+            border: 2px solid #FFD700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 0 15px rgba(255,215,0,0.1); 
+            padding: 25px 5px; z-index: 2; transform: translateY(-15px); animation: floatTop1 4s ease-in-out infinite;
+        }
+        .podium-card.top1 img { width: 75px; height: 75px; border: 2px solid #FFD700; box-shadow: 0 0 15px gold; }
+        .podium-card.top1 .medal { font-size: 3.5rem; top: -35px; animation: pulseGold 2s infinite alternate; filter: drop-shadow(0 0 10px gold); }
+        @keyframes floatTop1 { 0%, 100% { transform: translateY(-15px); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); } 50% { transform: translateY(-25px); box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); } }
+        
+        /* PLATA */
+        .podium-card.top2 { border: 1px solid #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .podium-card.top2 img { border: 2px solid #00f3ff; box-shadow: 0 0 10px #00f3ff; }
+        
+        /* BRONCE */
+        .podium-card.top3 { border: 1px solid #ff5500; box-shadow: 0 0 15px rgba(255, 80, 0, 0.2); }
+        .podium-card.top3 img { border: 2px solid #ff5500; box-shadow: 0 0 10px #ff5500; }
+
+        .prize-tag { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.1rem; margin-bottom: 5px; }
+        .podium-card.top1 .prize-tag { color: #FFD700; text-shadow: 0 0 10px gold; font-size: 1.5rem; }
+        .podium-card.top2 .prize-tag { color: #00f3ff; text-shadow: 0 0 10px #00f3ff; }
+        .podium-card.top3 .prize-tag { color: #ff7b00; text-shadow: 0 0 10px #ff5500; }
+
+        .name-tag { font-size: 0.75rem; font-weight: 600; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-transform: uppercase; }
+        .podium-card.top1 .name-tag { color: #fff; text-shadow: 0 0 5px white; font-size: 0.9rem;}
+
+        .timer-card { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid rgba(188,19,254,0.5); border-radius: 15px; padding: 15px; max-width: 400px; width: 100%; margin: 0 auto 30px auto; text-align: center; box-shadow: 0 0 20px rgba(188,19,254,0.2); }
+        .timer-title { color: var(--neon-purple); font-size: 0.8rem; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; border-bottom: 1px solid rgba(188,19,254,0.3); padding-bottom: 8px; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-purple);}
+        .timer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .timer-item span.num { font-size: 1.5rem; font-weight: 900; font-family: 'Orbitron', sans-serif; color: white; text-shadow: 0 0 10px var(--neon-purple); display: block; }
+        .timer-item span.label { font-size: 0.6rem; color: #ff88ff; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+
+        .lists-wrapper { display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 600px; }
+        .rank-list-card { background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; height: 600px; border: 1px solid rgba(188,19,254,0.3); box-shadow: 0 0 15px rgba(188,19,254,0.15); }
+        .list-header { padding: 15px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; background: linear-gradient(to bottom, rgba(188,19,254,0.2), transparent); border-bottom-color: rgba(188,19,254,0.3); }
+        .list-title { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin: 0; color: #fbe0ff; text-shadow: 0 0 10px var(--neon-purple); }
+        .my-rank-badge { display: none; margin-top: 10px; padding: 6px 15px; border-radius: 20px; background: #000; font-weight: bold; font-size: 0.8rem; font-family: 'Orbitron', sans-serif; border: 1px solid var(--neon-purple); color: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
+
+        .list-content { flex-grow: 1; padding: 10px 15px; overflow-y: auto; font-family: 'Rajdhani', sans-serif;}
+
+        /* ELEMENTOS DE LA LISTA CON AVATAR */
+        .rank-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px; margin-bottom: 10px; border-radius: 10px; font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .rank-row:hover { background: rgba(255,255,255,0.1); transform: translateX(8px); }
+        .rank-row:active { transform: scale(0.98) translateX(4px); } /* Feedback en lista */
+
+        /* Contenedor del Avatar y el Número superpuesto */
+        .rank-avatar-wrapper {
+            position: relative; width: 45px; height: 45px; margin-right: 15px; flex-shrink: 0;
+        }
+        .rank-avatar-img {
+            width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+            border: 2px solid transparent; background: #111;
+        }
+        .rank-circle {
+            position: absolute; top: -5px; left: -5px;
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: 900; font-size: 0.7rem; font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 5px rgba(0,0,0,0.8); z-index: 5;
+        }
+
+        /* Estilos por posición */
+        .row-top-1 { background: linear-gradient(90deg, rgba(255, 215, 0, 0.2), transparent); border: 1px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); animation: pulseGoldRow 2s infinite alternate; }
+        .row-top-1 .rank-avatar-img { border-color: #FFD700; box-shadow: 0 0 10px gold; }
+        .circle-top-1 { background: #FFD700; color: black; border: 1px solid white; }
+        .text-top-1 { color: #fff9c4; font-weight: 900; text-shadow: 0 0 8px gold; }
+
+        .row-top-2 { background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent); border: 1px solid #00f3ff; box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); }
+        .row-top-2 .rank-avatar-img { border-color: #00f3ff; box-shadow: 0 0 10px #00f3ff; }
+        .circle-top-2 { background: #e0e0e0; color: black; border: 1px solid white; }
+        .text-top-2 { color: #fff; font-weight: bold; text-shadow: 0 0 5px white; }
+
+        .row-top-3 { background: linear-gradient(90deg, rgba(255, 80, 0, 0.1), transparent); border: 1px solid #ff5500; box-shadow: 0 0 10px rgba(255, 80, 0, 0.2); }
+        .row-top-3 .rank-avatar-img { border-color: #ff5500; box-shadow: 0 0 10px #ff5500; }
+        .circle-top-3 { background: #ff7b00; color: white; border: 1px solid white; }
+        .text-top-3 { color: #ffccaa; font-weight: bold; text-shadow: 0 0 5px #ff5500; }
+
+        .row-other { background: rgba(0, 0, 0, 0.4); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .row-other .rank-avatar-img { border-color: #555; }
+        .circle-other { background: #222; color: #aaa; border: 1px solid #555; }
+        .text-other { color: #ccc; font-weight: 600; }
+
+        .is-me-row { background: rgba(188, 19, 254, 0.15) !important; border: 1px solid var(--neon-purple) !important; box-shadow: 0 0 15px rgba(188, 19, 254, 0.3) !important; }
+        .is-me-row .rank-avatar-img { border-color: var(--neon-purple) !important; box-shadow: 0 0 10px var(--neon-purple) !important; }
+        .text-me { color: #fbe0ff !important; font-weight: 900 !important; text-shadow: 0 0 8px var(--neon-purple) !important; }
+
+        @keyframes pulseGoldRow { from { box-shadow: 0 0 10px rgba(255,215,0,0.2); } to { box-shadow: 0 0 20px rgba(255,215,0,0.5); } }
+
+        .rank-info { flex-grow: 1; display: flex; align-items: center; overflow: hidden; }
+        .rank-name { text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
+        .rank-amount { font-family: 'Orbitron', sans-serif; font-weight: bold; text-align: right; font-size: 1.1rem; }
+        .amount-purple { color: var(--neon-purple); text-shadow: 0 0 8px rgba(188,19,254,0.6); }
+
+        /* =========================================
+           4. ESTILOS DE INSIGNIAS 2X1
+           ========================================= */
+        .badge-2x1-list {
+            background: linear-gradient(90deg, #ffcc00, #ff6600);
+            color: #000;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+            margin-left: 8px;
+            font-weight: 900;
+            box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+            display: inline-block;
+            animation: pulse2x1 1.5s infinite alternate;
+        }
+
+        .podium-2x1-badge {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #ffcc00, #ff6600);
+            color: #000;
+            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: 900;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+            font-family: 'Orbitron', sans-serif;
+            white-space: nowrap;
+            animation: pulse2x1Podium 1.5s infinite alternate;
+            z-index: 10;
+        }
+
+        @keyframes pulse2x1 {
+            from { box-shadow: 0 0 5px rgba(255, 204, 0, 0.5); transform: scale(1); }
+            to { box-shadow: 0 0 15px rgba(255, 204, 0, 0.9); transform: scale(1.05); }
+        }
+
+        @keyframes pulse2x1Podium {
+            from { box-shadow: 0 0 5px rgba(255, 204, 0, 0.5); transform: translateX(-50%) scale(1); }
+            to { box-shadow: 0 0 15px rgba(255, 204, 0, 0.9); transform: translateX(-50%) scale(1.05); }
+        }
+
+    </style>
+</head>
+<body oncontextmenu="return false;"> 
+
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <button class="menu-btn" id="openMenuBtn"><i class='bx bx-menu'></i></button>
+        </div>
+        <div class="top-bar-right">
+            <div class="badge"><i class='bx bx-calendar'></i> <span id="joinDateDisplay">--/--/----</span></div>
+            <div class="badge" onclick="window.location.href='perfil.html'">
+                <img id="topAvatar" src="https://via.placeholder.com/30/14001e/bc13fe?text=U" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid var(--neon-cyan);"> 
+                <span id="topUserDisplay">...</span>
+            </div>
+            <div class="badge green"><i class='bx bx-wallet'></i> $<span id="balanceDisplay">0.00</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>LUCK XIT</h2>
+            <button class="close-btn" id="closeMenuBtn"><i class='bx bx-x'></i></button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><i class='bx bx-home-alt-2'></i> Inicio</a>
+            <a href="perfil.html" class="sidebar-item"><i class='bx bx-user-circle'></i> Mi Perfil</a>
+            <a href="index.html" class="sidebar-item"><i class='bx bx-store-alt'></i> Tienda</a>
+            <a href="recarga.html" class="sidebar-item"><i class='bx bx-plus-circle'></i> Recargar Saldo</a>
+            <!-- Opción actual seleccionada -->
+            <a href="ranking.html" class="sidebar-item" style="border-left: 4px solid var(--neon-purple); background: linear-gradient(90deg, rgba(188, 19, 254, 0.15), transparent); color: var(--neon-purple); box-shadow: -5px 0 15px rgba(188, 19, 254, 0.1); transform: translateX(5px); opacity: 1;">
+                <i class='bx bx-trophy' style="color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple);"></i> Rankings
+            </a>
+            <a href="bot.html" class="sidebar-item"><i class='bx bxl-telegram'></i> Autorizar ID</a>
+            <a href="historial.html" class="sidebar-item"><i class='bx bx-history'></i> Mis Compras</a>
+            <a href="admin.html" class="sidebar-item" id="adminMenuBtn" style="display:none; border-left: 4px solid var(--neon-red);"><i class='bx bx-shield-quarter' style="color: var(--neon-red);"></i> Panel Admin</a>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="logoutBtn"><i class='bx bx-log-out'></i> Cerrar Sesión</button>
+            <div class="sidebar-version">
+                <p>Copyright SebasXit 2024 - 2026</p>
+                <div class="version-badge"><i class='bx bx-code-alt'></i> V4</div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="ranking-wrapper">
+        <div class="title-container">
+            <div class="title-blur">RANKINGS</div>
+            <h1 class="main-title">RANKINGS</h1>
+            <div class="sub-title">🏆 Gana $5 USD - Top 1 🏆</div>
+        </div>
+
+        <div style="background: rgba(188,19,254,0.2); border: 1px solid var(--neon-purple); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 30px; box-shadow: 0 0 15px rgba(188,19,254,0.4);">
+            <i class='bx bx-radio-circle-marked bx-burst' style="color: var(--neon-purple); font-size: 1rem; vertical-align: middle;"></i> ACTUALIZACIÓN EN VIVO
+        </div>
+
+        <!-- PODIO TOP 3 -->
+        <div class="podium-container" id="podiumContainer" style="display: none;">
+            <!-- TOP 2 -->
+            <div class="podium-card top2" id="cardTop2">
+                <div class="medal">🥈</div>
+                <img id="top2Avatar" src="" alt="Top 2">
+                <div class="prize-tag">$3</div>
+                <div class="name-tag" id="top2Name">...</div>
+            </div>
+            
+            <!-- TOP 1 -->
+            <div class="podium-card top1" id="cardTop1">
+                <div class="medal">👑</div>
+                <img id="top1Avatar" src="" alt="Top 1">
+                <div class="prize-tag">$5</div>
+                <div class="name-tag" id="top1Name">...</div>
+            </div>
+            
+            <!-- TOP 3 -->
+            <div class="podium-card top3" id="cardTop3">
+                <div class="medal">🥉</div>
+                <img id="top3Avatar" src="" alt="Top 3">
+                <div class="prize-tag">$1</div>
+                <div class="name-tag" id="top3Name">...</div>
+            </div>
+        </div>
+
+        <div class="timer-card">
+            <div class="timer-title">⏰ TIEMPO RESTANTE DEL CICLO</div>
+            <div class="timer-grid" id="countdownTimer">
+                <p style="grid-column: span 4; color: #888; font-size: 0.8rem;">Calculando tiempo...</p>
+            </div>
+        </div>
+
+        <div class="lists-wrapper">
+            <div class="rank-list-card purple">
+                <div class="list-header">
+                    <h2 class="list-title">Mejores Compradores</h2>
+                    <div id="myRankSales" class="my-rank-badge"></div>
+                </div>
+                <div class="list-content" id="listSales">
+                    <p style="text-align: center; color: #aaa; margin-top: 30px; font-family: 'Orbitron'; font-size: 0.8rem; animation: blink 1s infinite;">OBTENIENDO DATOS DE COMPRAS...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('openMenuBtn').addEventListener('click', () => { sidebar.classList.add('active'); overlay.classList.add('active'); });
+        document.getElementById('closeMenuBtn').addEventListener('click', () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); });
+        overlay.addEventListener('click', () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); });
+
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height; let particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5; this.vy = (Math.random() - 0.5) * 1.5;
+                this.size = Math.random() * 2 + 1;
+                this.color = Math.random() > 0.5 ? 'rgba(0, 243, 255, ' : 'rgba(188, 19, 254, ';
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + this.alpha + ')'; ctx.fill();
+            }
+        }
+        function initParticles() { particles = []; for (let i = 0; i < 60; i++) { particles.push(new Particle()); } }
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update(); particles[i].draw();
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x; const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 120) {
+                        ctx.beginPath(); ctx.strokeStyle = 'rgba(150, 50, 255, ' + (1 - distance/120) * 0.15 + ')';
+                        ctx.lineWidth = 1; ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        initParticles(); animate();
+    </script>
+
+    <script type="module">
+        /* IMPORTANTE: Se añadieron set y runTransaction para el sistema de premios */
+        import { auth, db, onAuthStateChanged, signOut, ref, get, child, set, runTransaction } from './firebase-config.js';
+
+        let currentUserUid = null;
+        let currentUserName = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUserUid = user.uid;
+                const d = new Date(user.metadata.creationTime);
+                document.getElementById('joinDateDisplay').innerText = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+
+                get(child(ref(db), `users/${user.uid}`)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        currentUserName = data.username;
+                        
+                        document.getElementById('topUserDisplay').innerText = currentUserName;
+                        document.getElementById('balanceDisplay').innerText = parseFloat(data.balance || 0).toFixed(2);
+                        if(data.avatar) document.getElementById('topAvatar').src = data.avatar;
+                        
+                        if(currentUserName.toLowerCase() === 'sebasxit') {
+                            document.getElementById('adminMenuBtn').style.display = 'flex';
+                        }
+                    }
+                });
+
+                loadRankings();
+                startCountdown();
+                setInterval(loadRankings, 30000);
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth).then(() => window.location.href = "login.html");
+        });
+
+        // --- SISTEMA AUTOMÁTICO DE PREMIOS DE CICLOS PASADOS ---
+        function getCycleDates() {
+            const now = new Date();
+            let currentYear = now.getFullYear();
+            let currentMonth = now.getMonth();
+            let currentCycleStart, prevCycleStart, prevCycleEnd;
+
+            if (now.getDate() >= 11) {
+                currentCycleStart = new Date(currentYear, currentMonth, 11, 0, 0, 0);
+                prevCycleStart = new Date(currentYear, currentMonth - 1, 11, 0, 0, 0);
+            } else {
+                currentCycleStart = new Date(currentYear, currentMonth - 1, 11, 0, 0, 0);
+                prevCycleStart = new Date(currentYear, currentMonth - 2, 11, 0, 0, 0);
+            }
+            prevCycleEnd = currentCycleStart;
+            let prevCycleId = `${prevCycleStart.getFullYear()}-${prevCycleStart.getMonth() + 1}`;
+            return { currentCycleStart, prevCycleStart, prevCycleEnd, prevCycleId };
+        }
+
+        async function checkAndSavePastWinners(usersData, dates) {
+            if(!currentUserUid) return;
+            const prevCycleId = dates.prevCycleId;
+            const snap = await get(ref(db, `cycle_winners_sales/${prevCycleId}`));
+            let winners = {};
+            
+            if (!snap.exists()) {
+                const rankingData = [];
+                for (const uid in usersData) {
+                    const u = usersData[uid];
+                    let dName = u.username || "Desconocido";
+                    if (dName.toLowerCase() === "sebasxit") continue;
+                    
+                    let prevCycleSpent = 0;
+                    if (u.history) {
+                        Object.values(u.history).forEach(p => {
+                            const price = parseFloat(p.price || 0);
+                            if (!p.refunded && p.date >= dates.prevCycleStart.getTime() && p.date < dates.prevCycleEnd.getTime()) {
+                                prevCycleSpent += price;
+                            }
+                        });
+                    }
+                    if(prevCycleSpent > 0) {
+                        rankingData.push({ id: uid, name: dName, total: prevCycleSpent });
+                    }
+                }
+                
+                rankingData.sort((a, b) => b.total - a.total);
+                
+                if(rankingData.length > 0) winners[rankingData[0].id] = { rank: 1, prize: 5, claimed: false };
+                if(rankingData.length > 1) winners[rankingData[1].id] = { rank: 2, prize: 3, claimed: false };
+                if(rankingData.length > 2) winners[rankingData[2].id] = { rank: 3, prize: 1, claimed: false };
+                
+                if(Object.keys(winners).length > 0) {
+                    await set(ref(db, `cycle_winners_sales/${prevCycleId}`), winners);
+                }
+            } else {
+                winners = snap.val();
+            }
+
+            // Si el usuario actual es ganador y no ha reclamado
+            if (winners && winners[currentUserUid] && winners[currentUserUid].claimed === false) {
+                const prize = winners[currentUserUid].prize;
+                const rank = winners[currentUserUid].rank;
+                
+                try {
+                    await runTransaction(ref(db, `users/${currentUserUid}/balance`), (currentBalance) => {
+                        return (currentBalance || 0) + prize;
+                    });
+                    await set(ref(db, `cycle_winners_sales/${prevCycleId}/${currentUserUid}/claimed`), true);
+                    showWinnerAlert(rank, prize);
+                } catch(e) {
+                    console.error("Error pagando premio:", e);
+                }
+            }
+        }
+
+        function showWinnerAlert(rank, prize) {
+            const overlay = document.createElement("div");
+            overlay.style.cssText = "position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px);";
+            overlay.innerHTML = `
+                <div style="background: rgba(10, 0, 20, 0.9); border: 2px solid #FFD700; border-radius: 20px; padding: 40px 20px; text-align: center; max-width: 350px; width: 90%; box-shadow: 0 0 50px rgba(255, 215, 0, 0.4); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -50px; left: -50px; width: 100px; height: 100px; background: var(--neon-purple); filter: blur(50px);"></div>
+                    <h2 style="font-family: 'Orbitron', sans-serif; color: #FFD700; font-size: 2.2rem; margin: 0 0 10px 0; text-shadow: 0 0 15px gold;">¡FELICIDADES!</h2>
+                    <p style="color: white; font-size: 1.1rem; margin: 0 0 20px 0; font-family: 'Rajdhani', sans-serif;">Quedaste en el <span style="color: #FFD700; font-weight: 900; font-size: 1.3rem;">TOP ${rank}</span> del ciclo pasado.</p>
+                    <div style="font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px white);">🏆</div>
+                    <p style="color: var(--neon-cyan); font-weight: bold; font-size: 1rem; margin-bottom: 5px; font-family: 'Rajdhani', sans-serif;">Tu premio fue agregado a tu saldo:</p>
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; color: #00f3ff; font-weight: 900; text-shadow: 0 0 20px #00f3ff; margin-bottom: 30px;">$${prize}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan)); color: white; border: none; padding: 12px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 0 15px rgba(188, 19, 254, 0.6); font-family: 'Poppins', sans-serif;">¡Genial!</button>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function setPodiumBadge(cardId, isActive) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            const existingBadge = card.querySelector('.podium-2x1-badge');
+            if (existingBadge) existingBadge.remove();
+            
+            if (isActive) {
+                card.insertAdjacentHTML('beforeend', '<div class="podium-2x1-badge">🔥 2X1 ACTIVO</div>');
+            }
+        }
+
+        async function loadRankings() {
+            const dates = getCycleDates();
+            const nowTime = Date.now();
+
+            try {
+                const snapshot = await get(ref(db, 'users'));
+                if (!snapshot.exists()) return;
+
+                const usersData = snapshot.val();
+                
+                // Verificar y entregar premios si cambió el ciclo
+                await checkAndSavePastWinners(usersData, dates);
+
+                const rankingData = [];
+
+                for (const uid in usersData) {
+                    const u = usersData[uid];
+                    let dName = u.username || "Desconocido";
+                    
+                    if (dName.toLowerCase() === "sebasxit") continue;
+
+                    let cycleSpent = 0; 
+                    let is2x1Active = u.promo2x1End && u.promo2x1End > nowTime;
+
+                    if (u.history) {
+                        Object.values(u.history).forEach(p => {
+                            const price = parseFloat(p.price || 0);
+                            if (!p.refunded && p.date >= dates.currentCycleStart.getTime()) {
+                                cycleSpent += price; 
+                            }
+                        });
+                    }
+
+                    if(dName.length > 10) dName = dName.substring(0, 10) + "..";
+                    const avatarUrl = u.avatar || `https://via.placeholder.com/150/14001e/bc13fe?text=${dName.charAt(0).toUpperCase()}`;
+
+                    rankingData.push({
+                        id: uid,
+                        name: dName,
+                        avatar: avatarUrl,
+                        cycleSpent: cycleSpent,
+                        isMe: uid === currentUserUid,
+                        is2x1Active: is2x1Active
+                    });
+                }
+
+                const sortSales = [...rankingData].sort((a, b) => b.cycleSpent - a.cycleSpent);
+
+                const podiumContainer = document.getElementById('podiumContainer');
+                
+                if(sortSales.length > 0 && sortSales[0].cycleSpent > 0) {
+                    podiumContainer.style.display = 'flex';
+                    
+                    // TOP 1
+                    document.getElementById('top1Avatar').src = sortSales[0].avatar;
+                    document.getElementById('top1Name').innerText = sortSales[0].name;
+                    setPodiumBadge('cardTop1', sortSales[0].is2x1Active);
+                    
+                    // TOP 2
+                    if(sortSales[1] && sortSales[1].cycleSpent > 0) {
+                        document.getElementById('top2Avatar').src = sortSales[1].avatar;
+                        document.getElementById('top2Name').innerText = sortSales[1].name;
+                        setPodiumBadge('cardTop2', sortSales[1].is2x1Active);
+                    } else {
+                        document.getElementById('top2Avatar').src = "https://via.placeholder.com/150/111/555?text=?";
+                        document.getElementById('top2Name').innerText = "Vacío";
+                        setPodiumBadge('cardTop2', false);
+                    }
+
+                    // TOP 3
+                    if(sortSales[2] && sortSales[2].cycleSpent > 0) {
+                        document.getElementById('top3Avatar').src = sortSales[2].avatar;
+                        document.getElementById('top3Name').innerText = sortSales[2].name;
+                        setPodiumBadge('cardTop3', sortSales[2].is2x1Active);
+                    } else {
+                        document.getElementById('top3Avatar').src = "https://via.placeholder.com/150/111/555?text=?";
+                        document.getElementById('top3Name').innerText = "Vacío";
+                        setPodiumBadge('cardTop3', false);
+                    }
+                } else {
+                    podiumContainer.style.display = 'none';
+                }
+
+                renderList(sortSales, document.getElementById("listSales"), 'cycleSpent', document.getElementById("myRankSales"), 'amount-purple');
+
+            } catch (error) {
+                console.error("Error al cargar rankings:", error);
+            }
+        }
+
+        // --- RENDER CON AVATARES SUPERPUESTOS ---
+        function renderList(data, container, valueKey, myAlert, amountClass) {
+            container.innerHTML = "";
+            const topData = data.slice(0, 50); 
+            
+            if(topData.length === 0 || topData[0][valueKey] === 0) {
+                container.innerHTML = "<p style='text-align: center; color: #666; margin-top: 30px;'>Aún no hay compras en este ciclo.</p>";
+                myAlert.style.display = "none";
+                return;
+            }
+
+            topData.forEach((user, index) => {
+                if(user[valueKey] <= 0) return;
+
+                const rank = index + 1;
+                let rowClass = "row-other"; let circleClass = "circle-other"; let textClass = "text-other"; let icon = "";
+
+                if (rank === 1) { rowClass = "row-top-1"; circleClass = "circle-top-1"; textClass = "text-top-1"; icon = "👑"; } 
+                else if (rank === 2) { rowClass = "row-top-2"; circleClass = "circle-top-2"; textClass = "text-top-2"; icon = "🥈"; } 
+                else if (rank === 3) { rowClass = "row-top-3"; circleClass = "circle-top-3"; textClass = "text-top-3"; icon = "🥉"; }
+
+                if (user.isMe) { rowClass += " is-me-row"; textClass = "text-me"; }
+
+                const badge2x1 = user.is2x1Active ? `<span class="badge-2x1-list">🔥 2x1</span>` : '';
+
+                const html = `
+                    <div class="rank-row ${rowClass}">
+                        <div class="rank-info">
+                            <div class="rank-avatar-wrapper">
+                                <img src="${user.avatar}" alt="${user.name}" class="rank-avatar-img">
+                                <div class="rank-circle ${circleClass}">${rank}</div>
+                            </div>
+                            <span class="rank-name ${textClass}">
+                                ${user.name} <span style="font-size: 0.8rem;">${icon}</span> ${badge2x1}
+                            </span>
+                        </div>
+                        <div class="rank-amount ${amountClass}">
+                            $${user[valueKey].toFixed(2)}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+
+            const myIndex = data.findIndex(u => u.isMe);
+            if (myIndex !== -1 && data[myIndex][valueKey] > 0) {
+                const val = data[myIndex][valueKey];
+                myAlert.innerHTML = `MI PUESTO #${myIndex + 1} <span style="color: #fff; font-weight: 300;">($${val.toFixed(2)})</span>`;
+                myAlert.style.display = "inline-block";
+            } else {
+                myAlert.style.display = "none";
+            }
+        }
+
+        function startCountdown() {
+            const container = document.getElementById("countdownTimer");
+            const updateTimer = () => {
+                const now = new Date();
+                let nextReset;
+                if (now.getDate() < 11) nextReset = new Date(now.getFullYear(), now.getMonth(), 11, 0, 0, 0);
+                else nextReset = new Date(now.getFullYear(), now.getMonth() + 1, 11, 0, 0, 0);
+
+                const diff = nextReset - now;
+                if (diff <= 0) { container.innerHTML = "<div style='grid-column: span 4; color: var(--neon-purple); font-weight: bold; animation: blink 1s infinite;'>¡CERRANDO CICLO Y ENTREGANDO PREMIOS!</div>"; return; }
+
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                const item = (num, label) => `
+                    <div class="timer-item">
+                        <span class="num">${num<10?'0'+num:num}</span>
+                        <span class="label">${label}</span>
+                    </div>`;
+                container.innerHTML = item(d,"DÍAS") + item(h,"HRS") + item(m,"MIN") + item(s,"SEG");
+            };
+            updateTimer(); setInterval(updateTimer, 1000);
+        }
+    </script>
+</body>
+</html>

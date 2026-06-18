@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mi API - SociosXIT</title>
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* =========================================
+           1. FUENTES Y VARIABLES CÓSMICAS
+           ========================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;500;700&display=swap');
+        
+        * { -webkit-user-select: none; user-select: none; box-sizing: border-box; touch-action: manipulation; }
+        
+        :root { 
+            --neon-pink: #ff0055; --neon-blue: #00eeff; --neon-purple: #bc13fe; --neon-green: #00ffcc; 
+            --bg-deep: #030008; --glass-bg: rgba(10, 2, 20, 0.7); --sidebar-bg: rgba(5, 0, 15, 0.95); 
+        }
+
+        body { 
+            background-color: var(--bg-deep); 
+            background-image: radial-gradient(circle at center, #1a0033 0%, var(--bg-deep) 70%);
+            color: white; font-family: 'Exo 2', sans-serif; margin: 0; padding: 0; 
+            min-height: 100dvh; display: flex; justify-content: flex-start; align-items: center; flex-direction: column; 
+            overflow-x: hidden; overscroll-behavior-y: none;
+        }
+
+        .cosmic-portal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100vw; height: 100vh; z-index: -2; display: flex; justify-content: center; align-items: center; pointer-events: none; overflow: hidden; }
+        .magic-ring { position: absolute; border-radius: 50%; mix-blend-mode: screen; }
+        .ring-outer { width: 900px; height: 900px; border: 4px dashed rgba(188, 19, 254, 0.3); box-shadow: 0 0 80px rgba(188, 19, 254, 0.4); animation: spinRing 60s linear infinite; }
+        .ring-middle { width: 700px; height: 700px; border: 2px solid rgba(0, 238, 255, 0.2); box-shadow: 0 0 50px rgba(0, 238, 255, 0.3); animation: spinRingReverse 30s linear infinite; }
+        .ring-inner { width: 550px; height: 550px; border: 6px dotted rgba(255, 0, 85, 0.3); box-shadow: 0 0 60px rgba(255, 0, 85, 0.4); animation: spinRing 20s linear infinite; }
+        .stars { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)); background-repeat: repeat; background-size: 200px 200px; animation: twinkle 4s infinite alternate; opacity: 0.4; }
+        @keyframes spinRing { 100% { transform: rotate(360deg); } } @keyframes spinRingReverse { 100% { transform: rotate(-360deg); } } @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 0.7; } }
+        #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; pointer-events: none; }
+
+        .top-bar { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 700px; background: rgba(10, 2, 20, 0.75); backdrop-filter: blur(20px); border: 1px solid rgba(0, 238, 255, 0.4); border-radius: 15px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(0, 238, 255, 0.2); z-index: 100; }
+        .menu-btn { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 8px; padding: 6px 10px; font-size: 1.5rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0, 238, 255, 0.2); }
+        .top-bar-right { display: flex; align-items: center; gap: 10px; }
+        .badge { display: flex; align-items: center; gap: 6px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-family: 'Orbitron', sans-serif; color: #ddd; white-space: nowrap; }
+        .badge i { font-size: 1.1rem; color: var(--neon-blue); } .badge span { color: #fff; font-weight: 700; }
+        .badge.green i, .badge.green span { color: var(--neon-green); text-shadow: 0 0 8px var(--neon-green); }
+
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 998; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar { position: fixed; top: 0; left: -300px; width: 260px; height: 100dvh; background: var(--sidebar-bg); border-right: 2px solid var(--neon-purple); box-shadow: 10px 0 30px rgba(188, 19, 254, 0.2); z-index: 999; transition: left 0.4s; display: flex; flex-direction: column; padding: 20px; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(188, 19, 254, 0.4); padding-bottom: 15px; margin-bottom: 20px; }
+        .sidebar-header h2 { margin: 0; font-family: 'Orbitron', sans-serif; color: var(--neon-blue); font-size: 1.3rem; }
+        .close-btn { background: transparent; border: none; color: var(--neon-pink); font-size: 2rem; cursor: pointer; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 12px; flex-grow: 1; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; color: #ddd; text-decoration: none; padding: 12px 15px; background: rgba(255,255,255,0.02); border-radius: 10px; font-size: 1rem; transition: 0.3s; }
+        .sidebar-item i { font-size: 1.4rem; color: var(--neon-purple); }
+
+        /* =========================================
+           2. CONTENEDORES DE API E INTEGRACIÓN
+           ========================================= */
+        .api-container { width: 95%; max-width: 800px; margin: 90px auto 30px auto; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; border: 1px solid var(--neon-purple); box-shadow: 0 0 30px rgba(188, 19, 254, 0.2); text-align: center; }
+        .api-title { font-family: 'Orbitron'; font-size: 1.8rem; color: var(--neon-blue); margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-blue); }
+        .api-desc { font-size: 1rem; color: #ccc; margin-bottom: 30px; }
+        
+        .api-key-box { background: rgba(0,0,0,0.8); border: 2px dashed var(--neon-blue); padding: 20px; border-radius: 10px; margin-bottom: 20px; word-break: break-all; }
+        .api-key-text { font-family: monospace; font-size: 1.2rem; color: var(--neon-green); letter-spacing: 2px; }
+        
+        .btn-action { background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); color: #fff; border: none; padding: 15px 30px; border-radius: 10px; font-family: 'Orbitron'; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 15px; box-shadow: 0 0 15px rgba(188, 19, 254, 0.4); }
+        .btn-action:hover { box-shadow: 0 0 25px var(--neon-blue); transform: scale(1.02); }
+        .btn-copy { background: transparent; border: 1px solid var(--neon-green); color: var(--neon-green); }
+        .btn-copy:hover { background: rgba(0, 255, 204, 0.1); box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); }
+
+        /* SECCIÓN DE INTEGRACIÓN DINAÁMICA */
+        .integration-section { margin-top: 40px; text-align: left; border-top: 1px dashed rgba(188, 19, 254, 0.4); padding-top: 20px; display: none; }
+        .integration-section h3 { font-family: 'Orbitron'; color: var(--neon-pink); font-size: 1.4rem; margin-bottom: 20px; text-align: center; }
+        
+        .platform-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .plat-btn { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #ddd; padding: 10px 20px; border-radius: 8px; font-family: 'Orbitron'; font-size: 0.9rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .plat-btn:hover { background: rgba(0, 238, 255, 0.1); border-color: var(--neon-blue); }
+        .plat-btn.active { background: rgba(0, 238, 255, 0.2); border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 238, 255, 0.3); }
+
+        .script-container { background: #050505; border: 1px solid var(--neon-blue); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .script-header { background: rgba(0, 238, 255, 0.1); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Exo 2'; font-weight: bold; color: var(--neon-blue); border-bottom: 1px solid rgba(0, 238, 255, 0.3); }
+        .btn-copy-script { background: var(--neon-blue); color: #000; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.8rem; font-weight: bold; transition: 0.3s; }
+        .btn-copy-script:hover { box-shadow: 0 0 10px var(--neon-blue); transform: scale(1.05); }
+        
+        pre { margin: 0; padding: 15px; overflow-x: auto; -webkit-user-select: text; user-select: text; }
+        code { font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; color: #a6e22e; }
+        
+        .tutorial-box { background: rgba(255,255,255,0.02); border-left: 4px solid var(--neon-purple); padding: 20px; border-radius: 0 10px 10px 0; }
+        .tutorial-box h4 { margin-top: 0; color: var(--neon-purple); font-family: 'Orbitron'; font-size: 1.1rem; margin-bottom: 15px; }
+        .tutorial-box ol { padding-left: 20px; margin: 0; color: #ccc; font-family: 'Exo 2'; line-height: 1.6; }
+        .tutorial-box li { margin-bottom: 10px; }
+        .tutorial-box code { background: #000; padding: 2px 6px; border-radius: 4px; color: var(--neon-pink); font-size: 0.85rem; }
+
+    </style>
+</head>
+<body oncontextmenu="return false;"> 
+
+    <div class="cosmic-portal"><div class="stars"></div><div class="magic-ring ring-outer"></div><div class="magic-ring ring-middle"></div><div class="magic-ring ring-inner"></div></div>
+
+    <div class="top-bar">
+        <div class="top-bar-left"><button class="menu-btn" id="openMenuBtn"><i class='bx bx-menu'></i></button></div>
+        <div class="top-bar-right">
+            <div class="badge green"><i class='bx bx-wallet'></i> $<span id="balanceDisplay">0.00</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header"><h2>SOCIOS XIT</h2><button class="close-btn" id="closeMenuBtn"><i class='bx bx-x'></i></button></div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><i class='bx bx-home-alt-2'></i> Inicio</a>
+            <a href="index.html" class="sidebar-item"><i class='bx bx-store-alt'></i> Tienda</a>
+            <a href="api.html" class="sidebar-item" style="border-left: 4px solid var(--neon-blue); background: rgba(0, 238, 255, 0.1); color: var(--neon-blue);"><i class='bx bx-code-alt' style="color: var(--neon-blue);"></i> Desarrolladores / API</a>
+        </div>
+    </div>
+    
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="api-container">
+        <h2 class="api-title"><i class='bx bx-code-block'></i> Acceso API</h2>
+        <p class="api-desc">Genera tu API Key para conectar tus bots o web de reventa. Las compras que haga tu sistema se descontarán de tu saldo actual.</p>
+        
+        <div class="api-key-box">
+            <span class="api-key-text" id="apiKeyDisplay">CARGANDO...</span>
+        </div>
+        
+        <button class="btn-action btn-copy" id="copyBtn" onclick="copyApiKey()" style="display: none;"><i class='bx bx-copy'></i> COPIAR API KEY</button>
+        <button class="btn-action" id="generateBtn" onclick="generateApiKey()"><i class='bx bx-refresh'></i> GENERAR NUEVA API KEY</button>
+
+        <div class="integration-section" id="integrationSection">
+            <h3><i class='bx bx-plug'></i> Opciones de Integración</h3>
+            <p style="text-align: center; color: #aaa; margin-bottom: 20px;">Selecciona dónde quieres usar tu API para obtener el script base con tu Key ya insertada.</p>
+            
+            <div class="platform-tabs">
+                <button class="plat-btn active" id="btnPlatTelegram" onclick="selectPlatform('telegram')"><i class='bx bxl-telegram'></i> Bot Telegram</button>
+                <button class="plat-btn" id="btnPlatWhatsapp" onclick="selectPlatform('whatsapp')"><i class='bx bxl-whatsapp'></i> Bot WhatsApp</button>
+                <button class="plat-btn" id="btnPlatWeb" onclick="selectPlatform('web')"><i class='bx bx-globe'></i> Web HTML (Crea tu tienda)</button>
+            </div>
+            
+            <div class="script-container">
+                <div class="script-header">
+                    <span><i class='bx bx-code-curly'></i> Script Generado</span>
+                    <button class="btn-copy-script" id="copyScriptBtn" onclick="copyScriptCode()">COPIAR SCRIPT</button>
+                </div>
+                <pre><code id="scriptCodeDisplay">Cargando script...</code></pre>
+            </div>
+
+            <div class="tutorial-box" id="tutorialBoxDisplay">
+                </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, onAuthStateChanged, ref, get, update } from './firebase-config.js';
+
+        let currentUser = null;
+        let currentApiKey = "";
+        let currentPlatform = "telegram"; // Default
+
+        const API_SERVER_URL = "https://whatsappbop-production.up.railway.app"; 
+
+        const platformData = {
+            telegram: {
+                script: `const TelegramBot = require('node-telegram-bot-api');
+const axios = require('axios');
+
+// Configuración
+const token = 'TU_TOKEN_DE_BOTFATHER_AQUI';
+const bot = new TelegramBot(token, {polling: true});
+const API_KEY = '{{API_KEY}}'; 
+const API_URL = '${API_SERVER_URL}/api';
+
+bot.onText(/\\/tienda/, async (msg) => {
+  const chatId = msg.chat.id;
+  try {
+    const res = await axios.get(\`\${API_URL}/productos?apikey=\${API_KEY}\`);
+    if(res.data.catalog.length === 0) return bot.sendMessage(chatId, 'No hay stock por ahora.');
+    
+    let texto = '🛒 *CATÁLOGO DISPONIBLE*\\n\\n';
+    res.data.catalog.forEach(p => {
+      texto += \`📦 *\${p.name}*\\n\`;
+      p.options.forEach(o => {
+        texto += \` ├ \${o.duration}: $\${o.price} (Stock: \${o.stock})\\n\`;
+      });
+      texto += '\\n';
+    });
+    bot.sendMessage(chatId, texto, {parse_mode: 'Markdown'});
+  } catch (error) {
+    bot.sendMessage(chatId, 'Error conectando con el proveedor.');
+  }
+});
+
+console.log('Bot de Telegram iniciado...');`,
+                tutorial: `<h4><i class='bx bx-book-reader'></i> Cómo implementar en Telegram</h4>
+                <ol>
+                    <li>Instala <code>Node.js</code> en tu PC o servidor VPS.</li>
+                    <li>Crea una carpeta para tu bot, ábrela en la consola/terminal e inicializa el proyecto con: <code>npm init -y</code></li>
+                    <li>Instala las librerías necesarias ejecutando: <code>npm install node-telegram-bot-api axios</code></li>
+                    <li>Ve a Telegram, busca a <b>@BotFather</b>, usa el comando <code>/newbot</code> para crear tu bot y copia el Token que te da.</li>
+                    <li>Pega el Token en el script donde dice <b>'TU_TOKEN_DE_BOTFATHER_AQUI'</b>.</li>
+                    <li>Guarda el código en un archivo llamado <code>bot.js</code> y arráncalo con el comando: <code>node bot.js</code></li>
+                </ol>`
+            },
+            whatsapp: {
+                script: `const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
+const axios = require('axios');
+
+const API_KEY = '{{API_KEY}}'; 
+const API_URL = '${API_SERVER_URL}/api';
+
+const client = new Client({
+    authStrategy: new LocalAuth()
+});
+
+client.on('qr', (qr) => {
+    qrcode.generate(qr, {small: true});
+    console.log('Escanea este código QR con tu WhatsApp para vincular el bot.');
+});
+
+client.on('ready', () => {
+    console.log('¡Bot de WhatsApp listo y conectado!');
+});
+
+client.on('message', async msg => {
+    if (msg.body === '!tienda') {
+        try {
+            const res = await axios.get(\`\${API_URL}/productos?apikey=\${API_KEY}\`);
+            if(res.data.catalog.length === 0) return msg.reply('No hay stock por ahora.');
+            
+            let texto = '🛒 *CATÁLOGO DISPONIBLE*\\n\\n';
+            res.data.catalog.forEach(p => {
+                texto += \`📦 *\${p.name}*\\n\`;
+                p.options.forEach(o => {
+                    texto += \` ├ \${o.duration}: $\${o.price} (Stock: \${o.stock})\\n\`;
+                });
+                texto += '\\n';
+            });
+            msg.reply(texto);
+        } catch (error) {
+            msg.reply('Error conectando con el proveedor.');
+        }
+    }
+});
+
+client.initialize();`,
+                tutorial: `<h4><i class='bx bx-book-reader'></i> Cómo implementar en WhatsApp</h4>
+                <ol>
+                    <li>Instala <code>Node.js</code> en tu PC o servidor VPS.</li>
+                    <li>Crea una carpeta nueva, abre la consola ahí y ejecuta: <code>npm init -y</code></li>
+                    <li>Instala las librerías base ejecutando: <code>npm install whatsapp-web.js qrcode-terminal axios</code></li>
+                    <li>Guarda el código en un archivo llamado <code>wabot.js</code> y arráncalo con: <code>node wabot.js</code></li>
+                    <li>Aparecerá un <b>Código QR</b> en tu consola. Escanéalo con el dispositivo vinculado de WhatsApp.</li>
+                </ol>`
+            },
+            web: {
+                script: `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tienda Revendedor</title>
+    <style>
+        body { font-family: Arial; background: #111; color: #fff; padding: 20px; }
+        .producto { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #00ffcc; }
+        .panel { background: #333; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #555; }
+        button { background: #00ffcc; color: #000; padding: 8px 15px; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        button:hover { background: #00ccaa; }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h2>Mi Tienda (Tu Logo Aquí)</h2>
+        <p>Bienvenido, Cliente. Tu Saldo: $<span id="saldoCliente">15.00</span> <i>(Simulado)</i></p>
+    </div>
+
+    <h2>Catálogo de Productos</h2>
+    <div id="catalogo">Sincronizando con el proveedor...</div>
+
+    <script type="module">
+        // =========================================================================
+        // 1. CONFIGURA TU PROPIA BASE DE DATOS (PARA AISLAR A TUS CLIENTES)
+        // =========================================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // IMPORTANTE: Crea un proyecto gratuito en Firebase y pega tus datos aquí.
+        // NUNCA pidas la base de datos de tu proveedor.
+        const miFirebaseConfig = {
+            apiKey: "PON_TU_API_KEY_AQUI",
+            authDomain: "TU_PROYECTO.firebaseapp.com",
+            databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+            projectId: "TU_PROYECTO",
+            storageBucket: "TU_PROYECTO.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcde"
+        };
+        
+        // Descomenta esto cuando pongas tus datos reales
+        // const app = initializeApp(miFirebaseConfig);
+        // const miDb = getDatabase(app);
+
+        // =========================================================================
+        // 2. CONEXIÓN A LA API DEL PROVEEDOR PRINCIPAL
+        // =========================================================================
+        const PROVEEDOR_API_KEY = '{{API_KEY}}';
+        const PROVEEDOR_URL = '${API_SERVER_URL}/api';
+
+        async function cargarTienda() {
+            try {
+                const res = await fetch(\`\${PROVEEDOR_URL}/productos?apikey=\${PROVEEDOR_API_KEY}\`);
+                const data = await res.json();
+                
+                const div = document.getElementById('catalogo');
+                div.innerHTML = '';
+
+                if(data.catalog.length === 0) return div.innerHTML = '<p>No hay productos.</p>';
+
+                data.catalog.forEach(p => {
+                    let html = \`<div class="producto"><h3>\${p.name}</h3>\`;
+                    p.options.forEach(o => {
+                        html += \`<p>\${o.duration} - $\${o.price} (Stock: \${o.stock})</p>
+                                 <button onclick="comprarProd('\${p.productId}', '\${o.durId}', \${o.price})">Comprar Key</button>\`;
+                    });
+                    html += '</div>';
+                    div.innerHTML += html;
+                });
+            } catch (e) {
+                document.getElementById('catalogo').innerText = 'Error cargando tienda.';
+            }
+        }
+
+        // =========================================================================
+        // 3. LÓGICA DE COBRO AL CLIENTE Y EXTRACCIÓN DE KEY
+        // =========================================================================
+        window.comprarProd = async (prodId, durId, precio) => {
+            alert('Has iniciado una compra.\\n\\nComo desarrollador, aquí debes programar:\\n1. Descontar el saldo a TU cliente en TU propia Firebase.\\n2. Solicitar la Key a la API del proveedor.\\n3. Mostrarle la Key a tu cliente en pantalla.');
+            
+            /* EJEMPLO REAL DE CÓMO IMPLEMENTARLO:
+            
+            // 1. Verificas saldo en tu base de datos local
+            // const clienteRef = ref(miDb, 'usuarios/ID_DEL_CLIENTE');
+            // ... (verificar si saldo >= precio)
+            
+            // 2. Compras en la API del proveedor (se descuenta de tu saldo de revendedor)
+            const res = await fetch(\`\${PROVEEDOR_URL}/comprar\`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ apikey: PROVEEDOR_API_KEY, productId: prodId, durId: durId, qty: 1 })
+            });
+            const resultado = await res.json();
+            
+            if(resultado.success) {
+                // 3. Descuentas el saldo en TU base de datos y entregas la key
+                // await update(clienteRef, { balance: nuevoSaldo });
+                alert("¡Compra exitosa! La Key es: " + resultado.deliveredKeys[0]);
+            } else {
+                alert("Error del proveedor: " + resultado.error);
+            }
+            */
+        };
+
+        cargarTienda();
+    <\/script>
+</body>
+</html>`,
+                tutorial: `<h4><i class='bx bx-book-reader'></i> Crea una Tienda Web Autónoma</h4>
+                <ol>
+                    <li>Crea un archivo nuevo llamado <code>tienda.html</code> en tu PC y pega el script de arriba.</li>
+                    <li><b>MUY IMPORTANTE:</b> Para gestionar los saldos y perfiles de <i>tus propios clientes</i>, ve a <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--neon-blue)">Firebase</a> y crea un proyecto gratuito.</li>
+                    <li>Copia las credenciales de tu nuevo Firebase y pégalas en la variable <code>miFirebaseConfig</code> del código generado.</li>
+                    <li>Tu llave de proveedor (API Key) ya está inyectada en el código para conectarse a nuestro inventario.</li>
+                    <li>Revisa la función <code>comprarProd()</code>. Ahí te dejamos comentado el ejemplo exacto de cómo cobrarle a tu cliente local antes de extraernos la Key a nosotros.</li>
+                </ol>`
+            }
+        };
+
+        // =========================================
+        // LÓGICA DE FIREBASE Y GENERACIÓN
+        // =========================================
+
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            return result;
+        }
+
+        function updateUIWithApiKey(key) {
+            currentApiKey = key;
+            document.getElementById('apiKeyDisplay').innerText = key;
+            document.getElementById('copyBtn').style.display = 'block';
+            document.getElementById('integrationSection').style.display = 'block'; 
+            window.selectPlatform(currentPlatform); 
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                get(ref(db, `users/${user.uid}`)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById('balanceDisplay').innerText = (data.balance !== undefined ? parseFloat(data.balance) : 0).toFixed(2);
+                        
+                        if (data.apiKey) {
+                            updateUIWithApiKey(data.apiKey);
+                        } else {
+                            document.getElementById('apiKeyDisplay').innerText = "NO TIENES API KEY AÚN";
+                            document.getElementById('integrationSection').style.display = 'none';
+                        }
+                    }
+                });
+            } else { 
+                window.location.href = "login.html"; 
+            }
+        });
+
+        window.generateApiKey = async () => {
+            if(!currentUser) return;
+            const newKey = "XIT-" + generateRandomString(32);
+            document.getElementById('apiKeyDisplay').innerText = "GENERANDO...";
+            
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), { apiKey: newKey });
+                updateUIWithApiKey(newKey);
+                alert("API Key generada con éxito. Revisa la sección de abajo para copiar el script de tu bot o web.");
+            } catch (error) {
+                console.error("Error al generar API Key:", error);
+                document.getElementById('apiKeyDisplay').innerText = "ERROR AL GENERAR";
+            }
+        };
+
+        window.copyApiKey = () => {
+            navigator.clipboard.writeText(currentApiKey).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.innerHTML = "<i class='bx bx-check'></i> ¡COPIADO!";
+                setTimeout(() => btn.innerHTML = "<i class='bx bx-copy'></i> COPIAR API KEY", 2000);
+            });
+        };
+
+        // =========================================
+        // LÓGICA DE PESTAÑAS (TABS)
+        // =========================================
+
+        window.selectPlatform = (platform) => {
+            currentPlatform = platform;
+            
+            // Estilos de botones
+            document.getElementById('btnPlatTelegram').classList.remove('active');
+            document.getElementById('btnPlatWhatsapp').classList.remove('active');
+            document.getElementById('btnPlatWeb').classList.remove('active');
+            
+            if(platform === 'telegram') document.getElementById('btnPlatTelegram').classList.add('active');
+            if(platform === 'whatsapp') document.getElementById('btnPlatWhatsapp').classList.add('active');
+            if(platform === 'web') document.getElementById('btnPlatWeb').classList.add('active');
+
+            // Insertar Script (Reemplazando la Key)
+            const baseScript = platformData[platform].script;
+            const finalScript = baseScript.replace('{{API_KEY}}', currentApiKey);
+            document.getElementById('scriptCodeDisplay').textContent = finalScript;
+
+            // Insertar Tutorial
+            document.getElementById('tutorialBoxDisplay').innerHTML = platformData[platform].tutorial;
+        };
+
+        window.copyScriptCode = () => {
+            const code = document.getElementById('scriptCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copyScriptBtn');
+                btn.innerText = "¡SCRIPT COPIADO!";
+                setTimeout(() => btn.innerText = "COPIAR SCRIPT", 2000);
+            });
+        };
+
+        // UI Base
+        const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebarOverlay');
+        document.getElementById('openMenuBtn').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
+        document.getElementById('closeMenuBtn').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+
+        // Canvas de fondo (minimizado)
+        const canvas = document.getElementById('particle-canvas'); const ctx = canvas.getContext('2d'); let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; } window.addEventListener('resize', resize); resize();
+        class Particle { constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.8; this.vy = (Math.random()-0.5)*0.8; this.size = Math.random()*2+1; this.color = Math.random()>0.5?'rgba(0,238,255,':'rgba(188,19,254,'; this.alpha = Math.random()*0.4+0.1; } update() { this.x += this.vx; this.y += this.vy; if (this.x<0||this.x>width) this.vx*=-1; if (this.y<0||this.y>height) this.vy*=-1; } draw() { ctx.beginPath(); ctx.arc(this.x|0, this.y|0, this.size, 0, Math.PI*2); ctx.fillStyle = this.color+this.alpha+')'; ctx.fill(); } }
+        for (let i=0; i<20; i++) particles.push(new Particle()); function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); } animate();
+    </script>
+</body>
+</html>

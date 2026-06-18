@@ -3,334 +3,868 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recargar con Nequi</title>
+    <title>Recargas y Monetización - LUCK XIT OFC</title>
+    
+    <!-- Librerías y Fuentes -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: #1e1e1e;
-            padding: 2rem;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-        h2 { color: #bb86fc; margin-top: 0; }
-        input {
-            width: 90%;
-            padding: 10px;
-            margin: 15px 0;
-            border-radius: 5px;
-            border: 1px solid #333;
-            background: #333;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-            transition: 0.3s;
-        }
-        .nequi-card {
-            background: #2d004d; /* Color Nequi oscuro */
-            border: 1px solid #da0081; /* Rosa Nequi */
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            margin-top: 20px;
-            display: none; /* Oculto al inicio */
-            animation: fadeIn 0.5s;
+        /* =========================================
+           1. FUENTES Y VARIABLES GLOBALES
+           ========================================= */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap');
+        
+        * { 
+            user-select: none; 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
         }
         
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .number-display {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #fff;
-            margin: 10px 0;
-            background: rgba(255,255,255,0.1);
-            padding: 10px;
-            border-radius: 8px;
-            letter-spacing: 2px;
-            /* Permitir selección fácil */
-            user-select: all; 
-        }
-
-        .btn-nequi {
-            background: #da0081; /* Rosa Nequi */
-            color: white;
-            font-size: 1.1rem;
-        }
-        .btn-nequi:hover { background: #b00068; }
-
-        .btn-whatsapp {
-            background: #25D366; /* Verde WhatsApp */
-            color: white;
-            margin-top: 15px;
-        }
-        .btn-whatsapp:hover { background: #128C7E; }
-        
-        .btn-secondary {
-            background: #444;
-            color: #ccc;
-        }
-        .back-btn {
-            background: transparent;
-            border: 1px solid #555;
-            color: #aaa;
-            margin-top: 20px;
-        }
-
-        /* Iconos simples con texto */
-        .icon-btn { display: flex; align-items: center; justify-content: center; gap: 10px; }
-        
-        /* Texto de conversión en tiempo real */
-        .conversion-text {
-            font-size: 0.9rem;
-            color: #00d2d3;
-            margin-top: -10px;
-            margin-bottom: 15px;
-            min-height: 1.2em;
+        :root { 
+            --neon-purple: #bc13fe; 
+            --neon-red: #ff073a; 
+            --neon-cyan: #00f3ff; 
+            --neon-green: #00ffcc; 
+            --bg-deep: #050508;
+            --surface-color: rgba(12, 14, 25, 0.85);
+            --surface-border: rgba(0, 243, 255, 0.15);
         }
         
-        #toast {
-            visibility: hidden; 
-            min-width: 250px; 
-            background-color: #333; 
-            color: #fff; 
-            text-align: center; 
-            border-radius: 2px; 
-            padding: 16px; 
+        body { 
+            background-color: var(--bg-deep); 
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 243, 255, 0.05) 0%, transparent 50%), 
+                              radial-gradient(circle at 50% 100%, rgba(188, 19, 254, 0.05) 0%, transparent 50%);
+            color: white; 
+            font-family: 'Poppins', sans-serif; 
+            min-height: 100dvh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow-x: hidden; 
+        }
+        
+        #particle-canvas { 
             position: fixed; 
-            z-index: 100; 
-            left: 50%; 
-            bottom: 30px; 
-            transform: translateX(-50%); 
-            font-size: 17px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            z-index: -1; 
+            pointer-events: none; 
         }
+        
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--neon-cyan); border-radius: 4px; }
+
+        /* =========================================
+           2. BARRA SUPERIOR Y MENÚ LATERAL
+           ========================================= */
+        .top-bar { 
+            position: fixed; top: 15px; 
+            width: 92%; max-width: 800px; 
+            background: rgba(8, 10, 15, 0.7); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 16px; 
+            padding: 10px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); 
+            z-index: 100;
+        }
+        
+        .menu-btn { 
+            background: transparent; border: none; color: white; 
+            font-size: 1.8rem; cursor: pointer; transition: 0.3s; 
+        }
+        .menu-btn:hover { color: var(--neon-cyan); transform: scale(1.1); }
+        
+        .top-bar-right { display: flex; align-items: center; gap: 12px; }
+        
+        .user-chip { 
+            display: flex; align-items: center; gap: 8px; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 6px 14px; border-radius: 30px; 
+            font-size: 0.8rem; cursor: pointer; transition: 0.3s;
+        }
+        .user-chip:hover { background: rgba(255,255,255,0.08); border-color: var(--neon-cyan); }
+        .user-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid var(--neon-cyan); }
+        .user-chip span { font-weight: 500; letter-spacing: 0.5px; }
+
+        .balance-chip {
+            display: flex; align-items: center; gap: 6px; 
+            background: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.2); 
+            padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 600;
+            color: var(--neon-green); text-shadow: 0 0 8px rgba(0,255,204,0.4);
+        }
+
+        /* Sidebar y Overlay */
+        .sidebar-overlay { 
+            position: fixed; top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); 
+            z-index: 998; opacity: 0; visibility: hidden; transition: 0.3s; 
+        }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        
+        .sidebar { 
+            position: fixed; top: 0; left: -320px; 
+            width: 280px; height: 100dvh; 
+            background: rgba(5, 7, 12, 0.98); border-right: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 10px 0 40px rgba(0,0,0,0.9); z-index: 999; 
+            transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex; flex-direction: column; padding: 25px 20px; 
+        }
+        .sidebar.active { left: 0; }
+        
+        .sidebar-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 20px; 
+        }
+        .sidebar-header h2 { margin: 0; font-family: 'Orbitron'; color: white; font-size: 1.2rem; letter-spacing: 2px; }
+        .close-btn { background: transparent; border: none; color: #888; font-size: 2rem; cursor: pointer; transition: 0.3s; }
+        .close-btn:hover { color: var(--neon-red); transform: rotate(90deg); }
+        
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; overflow-y: auto; }
+        .sidebar-item { 
+            display: flex; align-items: center; gap: 14px; color: #aaa; 
+            text-decoration: none; padding: 14px 16px; border-radius: 12px; 
+            font-size: 0.95rem; font-weight: 500; transition: 0.3s;
+        }
+        .sidebar-item:hover { background: rgba(255,255,255,0.03); color: white; transform: translateX(5px); }
+        .sidebar-item i { font-size: 1.4rem; }
+
+        /* =========================================
+           3. SISTEMA DE PESTAÑAS (TABS)
+           ========================================= */
+        .tabs-container {
+            display: flex; width: 92%; max-width: 800px;
+            margin: 100px auto 25px auto; background: rgba(255,255,255,0.02);
+            border-radius: 16px; padding: 6px; border: 1px solid rgba(255,255,255,0.05);
+            position: relative; z-index: 10; overflow-x: auto;
+        }
+        .tabs-container::-webkit-scrollbar { display: none; }
+        
+        .tab-btn {
+            flex: 1; background: transparent; border: none; color: #666; 
+            padding: 14px 10px; border-radius: 12px; cursor: pointer; font-family: 'Poppins'; 
+            font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; 
+            justify-content: center; gap: 8px; transition: 0.4s ease; white-space: nowrap;
+            min-width: 140px;
+        }
+        .tab-btn i { font-size: 1.2rem; }
+        .tab-btn:hover { color: #fff; }
+        .tab-btn.active { 
+            background: rgba(0, 243, 255, 0.1); color: var(--neon-cyan); 
+            box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.05);
+        }
+
+        /* =========================================
+           4. CONTENEDORES PRINCIPALES (TARJETAS)
+           ========================================= */
+        .main-container { width: 92%; max-width: 800px; position: relative; z-index: 10; padding-bottom: 40px; }
+
+        @keyframes fadeUpIn { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .dashboard-card { 
+            background: linear-gradient(145deg, rgba(12,14,25,0.9), rgba(5,7,12,0.95));
+            backdrop-filter: blur(20px); border-radius: 24px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            padding: 40px; text-align: center; 
+            animation: fadeUpIn 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+        }
+
+        .card-header { margin-bottom: 35px; }
+        .card-icon { 
+            width: 70px; height: 70px; background: rgba(0,243,255,0.05); 
+            border: 1px solid rgba(0,243,255,0.2); border-radius: 20px; 
+            display: flex; justify-content: center; align-items: center; 
+            margin: 0 auto 20px auto; font-size: 2.2rem; color: var(--neon-cyan); 
+            box-shadow: 0 0 20px rgba(0,243,255,0.1); 
+        }
+        .card-title { font-family: 'Orbitron'; font-size: 1.6rem; color: #fff; letter-spacing: 1px; }
+        .card-desc { color: #888; font-size: 0.9rem; margin-top: 10px; max-width: 80%; margin-left: auto; margin-right: auto; line-height: 1.6;}
+
+        /* Alertas de Información */
+        .info-alert {
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-left: 3px solid var(--neon-cyan);
+            border-radius: 12px; padding: 18px 20px; margin-bottom: 25px;
+            display: flex; gap: 15px; align-items: flex-start; text-align: left;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .info-alert i { font-size: 1.6rem; color: var(--neon-cyan); margin-top: 2px; }
+        .info-alert p { font-size: 0.85rem; color: #aaa; line-height: 1.6; margin: 0; }
+        .info-alert p strong { color: #fff; font-weight: 600; }
+
+        /* Inputs de Formulario */
+        .input-group { text-align: left; margin-bottom: 25px; position: relative; }
+        .input-group label { display: block; font-size: 0.75rem; color: #aaa; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .input-field { 
+            width: 100%; padding: 18px 20px; border-radius: 16px; 
+            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08); 
+            color: white; outline: none; font-size: 1.1rem; font-family: 'Poppins'; 
+            transition: all 0.3s ease; 
+        }
+        .input-field select option { background: #050508; color: #fff; }
+        .input-field:focus { border-color: var(--neon-cyan); background: rgba(0,243,255,0.02); box-shadow: 0 0 0 4px rgba(0,243,255,0.1); }
+        
+        /* Caja de Tasa de Cambio */
+        .rate-box { 
+            background: rgba(0,255,204,0.05); border: 1px dashed rgba(0,255,204,0.3); 
+            border-radius: 16px; padding: 20px; margin-bottom: 30px; 
+            display: flex; flex-direction: column; align-items: center; gap: 5px; transition: 0.3s; 
+        }
+        .rate-val { font-size: 1.6rem; color: #aaa; font-family: 'Orbitron'; font-weight: bold; transition: 0.3s; }
+        .rate-val.active { color: var(--neon-green); text-shadow: 0 0 15px rgba(0,255,204,0.4); }
+        .rate-lbl { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Botones Premium */
+        .btn-action { 
+            width: 100%; padding: 20px; 
+            background: linear-gradient(90deg, rgba(0,243,255,0.1), rgba(188,19,254,0.1)); 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: white; 
+            font-weight: 600; font-size: 1rem; cursor: pointer; font-family: 'Poppins'; 
+            display: flex; justify-content: center; align-items: center; gap: 10px; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden;
+        }
+        .btn-action::before { 
+            content: ''; position: absolute; top: 0; left: -100%; 
+            width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transition: 0.5s; 
+        }
+        .btn-action:hover::before { left: 100%; }
+        .btn-action:hover { 
+            background: rgba(0,243,255,0.15); border-color: var(--neon-cyan); 
+            color: var(--neon-cyan); box-shadow: 0 10px 25px rgba(0,243,255,0.15); transform: translateY(-3px); 
+        }
+        
+        .btn-game { background: rgba(188,19,254,0.1); color: #fff; border-color: rgba(188,19,254,0.3); }
+        .btn-game:hover { background: var(--neon-purple); border-color: var(--neon-purple); color: white; box-shadow: 0 10px 30px rgba(188,19,254,0.3); }
+
+        /* Resultados (Monetización) */
+        .result-panel { background: #000; border: 1px solid rgba(0,243,255,0.3); padding: 20px; border-radius: 16px; margin-top: 25px; display: none; }
+        .link-text { font-family: 'Orbitron'; color: var(--neon-cyan); word-break: break-all; display: block; margin-bottom: 15px; font-size: 0.9rem; text-align: center; }
+
+        /* =========================================
+           5. HISTORIAL PREMIUM
+           ========================================= */
+        .history-grid { display: grid; grid-template-columns: 1fr; gap: 20px; animation: fadeUpIn 0.5s ease forwards; }
+        .h-card { background: rgba(12,14,25,0.7); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 25px; transition: 0.3s; position: relative; overflow: hidden; }
+        .h-card::after { content:''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: #333; transition: 0.3s; }
+        .h-card:hover { transform: translateY(-5px); background: rgba(20,22,35,0.9); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        .h-card:hover::after { background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); }
+        
+        .h-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .h-info .id { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; font-weight: bold; margin-bottom: 4px; display: block; }
+        .h-info .date { font-size: 0.8rem; color: #666; }
+        
+        .badge-status { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+        .st-wait { background: rgba(255,193,7,0.1); color: #ffc107; border: 1px solid rgba(255,193,7,0.2); }
+        .st-rev { background: rgba(0,243,255,0.1); color: var(--neon-cyan); border: 1px solid rgba(0,243,255,0.2); }
+        .st-ok { background: rgba(0,255,0,0.1); color: #00ff00; border: 1px solid rgba(0,255,0,0.2); }
+        .st-fail { background: rgba(255,7,58,0.1); color: var(--neon-red); border: 1px solid rgba(255,7,58,0.2); }
+
+        .h-data { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; }
+        .h-data div label { display: block; font-size: 0.65rem; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+        .h-data div span { font-size: 1rem; color: #fff; font-weight: 600; font-family: 'Orbitron'; }
+        
+        .h-actions { display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; }
+        .h-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-family: 'Poppins'; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+        .h-btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #aaa; }
+        .h-btn-outline:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .h-btn-primary { background: rgba(0,243,255,0.1); color: var(--neon-cyan); border: 1px solid rgba(0,243,255,0.3); }
+        .h-btn-primary:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px rgba(0,243,255,0.4); }
+
+        /* =========================================
+           6. COMPONENTES EXTRA (LOADERS Y TOASTS)
+           ========================================= */
+        #globalLoader { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(5,5,8,0.9); z-index: 5000; flex-direction: column; 
+            justify-content: center; align-items: center; backdrop-filter: blur(10px); 
+        }
+        .spinner-ring { 
+            width: 60px; height: 60px; border: 3px solid rgba(255,255,255,0.05); 
+            border-top-color: var(--neon-cyan); border-radius: 50%; 
+            animation: spin 1s linear infinite; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0,243,255,0.2); 
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #toast-container { position: fixed; bottom: 30px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 15px; pointer-events: none; }
+        .toast { 
+            background: rgba(15,15,20,0.95); backdrop-filter: blur(10px); color: white; 
+            padding: 16px 24px; border-radius: 16px; display: flex; align-items: center; gap: 15px; 
+            font-family: 'Poppins'; font-size: 0.9rem; font-weight: 500; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+            animation: slideUpToast 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOutToast 0.5s ease 3.5s forwards; 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+        .toast.success { border-left: 4px solid var(--neon-green); }
+        .toast.error { border-left: 4px solid var(--neon-red); }
+        .toast.info { border-left: 4px solid var(--neon-cyan); }
+        .toast i { font-size: 1.5rem; }
+        .toast.success i { color: var(--neon-green); }
+        .toast.error i { color: var(--neon-red); }
+        
+        @keyframes slideUpToast { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOutToast { from { transform: translateY(0); opacity: 1; } to { transform: translateY(100px); opacity: 0; } }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h2>Recargar Saldo</h2>
-        <p>Ingresa el monto en Dólares (USD).</p>
+<body oncontextmenu="return false;">
 
-        <div id="step1">
-            <label>Monto a recargar (USD):</label>
-            <input type="number" id="amountInput" placeholder="Ej: 2.00" step="0.5">
-            
-            <p id="conversionDisplay" class="conversion-text">≈ 0 COP</p>
-            
-            <button onclick="generateOrder()" style="background-color: #6200ea; color: white;">Continuar con Nequi</button>
-        </div>
+    <!-- Sistema de Alertas -->
+    <div id="toast-container"></div>
 
-        <div id="step2" class="nequi-card">
-            <h3>Orden Generada</h3>
-            <p>Debes enviar <strong id="displayAmountCOP" style="color:#00d2d3; font-size: 1.2rem;"></strong> COP</p>
-            <p style="font-size: 0.8rem; margin-top:-10px;">(Equivalente a <span id="displayAmountUSD"></span> USD)</p>
-            
-            <p>Al siguiente Nequi:</p>
-            
-            <div class="number-display" id="nequiNumber">3214701288</div>
-            
-            <button class="btn-nequi icon-btn" onclick="openNequi()">
-                📱 Copiar y Abrir Nequi
-            </button>
-
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 20px 0;">
-
-            <p style="font-size: 0.9rem;">¿Ya realizaste el pago?</p>
-            <p style="font-size: 0.8rem; color: #ccc;">Envía el comprobante para que el Admin te asigne el saldo.</p>
-            
-            <button class="btn-whatsapp icon-btn" onclick="sendProof()">
-                💬 Enviar Comprobante (WhatsApp)
-            </button>
-            
-            <button class="btn-secondary" onclick="resetForm()" style="margin-top: 10px; font-size: 0.8rem;">Cancelar / Volver</button>
-        </div>
-
-        <button class="back-btn" onclick="window.location.href='dashboard.html'" id="backBtn">Volver al Inicio</button>
+    <!-- Cargador Global -->
+    <div id="globalLoader">
+        <div class="spinner-ring"></div>
+        <p id="loaderText" style="font-family:'Orbitron'; letter-spacing:3px; font-weight:bold; color: #fff;">PROCESANDO</p>
     </div>
 
-    <div id="toast">Número copiado al portapapeles</div>
+    <!-- Barra Superior -->
+    <div class="top-bar">
+        <button class="menu-btn" id="openMenuBtn"><i class='bx bx-menu-alt-left'></i></button>
+        <div class="top-bar-right">
+            <div class="user-chip" onclick="window.location.href='perfil.html'">
+                <img id="topAvatar" src="https://via.placeholder.com/30?text=U" alt="Avatar"> 
+                <span id="topUserDisplay">Perfil</span>
+            </div>
+            <div class="balance-chip"><i class='bx bx-wallet'></i>$<span id="balanceDisplay">0.00</span></div>
+        </div>
+    </div>
 
+    <!-- Menú Lateral -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>LUCK XIT OFC</h2>
+            <button class="close-btn" id="closeMenuBtn"><i class='bx bx-x'></i></button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><i class='bx bx-grid-alt'></i> Panel Principal</a>
+            <a href="perfil.html" class="sidebar-item"><i class='bx bx-user'></i> Mi Perfil</a>
+            <a href="index.html" class="sidebar-item"><i class='bx bx-store'></i> Tienda Digital</a>
+            <a href="ranking.html" class="sidebar-item"><i class='bx bx-trophy'></i> Rankings</a>
+            <a href="recarga.html" class="sidebar-item" style="background: rgba(0, 243, 255, 0.05); color: var(--neon-cyan); border-left: 3px solid var(--neon-cyan);"><i class='bx bx-wallet-alt'></i> Finanzas</a>
+            <a href="bot.html" class="sidebar-item"><i class='bx bxl-telegram'></i> Autorizar ID Bot</a>
+            <a href="historial.html" class="sidebar-item"><i class='bx bx-receipt'></i> Mis Compras</a>
+            <a href="admin.html" class="sidebar-item" id="adminMenuBtn" style="display:none; color: var(--neon-red);"><i class='bx bx-shield-quarter'></i> Administración</a>
+        </div>
+    </div>
+
+    <!-- Fondo de Partículas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Sistema de Pestañas -->
+    <div class="tabs-container">
+        <button class="tab-btn active" id="tabNew" onclick="switchTab('new')"><i class='bx bx-plus-circle'></i> Depositar</button>
+        <button class="tab-btn" id="tabSell" onclick="switchTab('sell')"><i class='bx bx-game'></i> Saldo por Cuenta FF</button>
+        <button class="tab-btn" id="tabAds" onclick="switchTab('ads')"><i class='bx bx-link'></i> Monetizar Link</button>
+        <button class="tab-btn" id="tabHistory" onclick="switchTab('history')"><i class='bx bx-history'></i> Registros</button>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="main-container">
+
+        <!-- Vista: Añadir Fondos -->
+        <div class="dashboard-card" id="viewNew">
+            <div class="card-header">
+                <div class="card-icon"><i class='bx bx-wallet'></i></div>
+                <h2 class="card-title">AÑADIR FONDOS</h2>
+                <p class="card-desc">Selecciona tu país de residencia y el monto en dólares que deseas convertir a saldo dentro de la plataforma.</p>
+            </div>
+            
+            <div class="input-group">
+                <label>País de Origen</label>
+                <select class="input-field" id="countrySelect"></select>
+            </div>
+            
+            <div class="input-group">
+                <label>Monto (USD)</label>
+                <input type="number" class="input-field" id="amountUSD" placeholder="Ej. 10.00" step="0.5">
+            </div>
+            
+            <div class="rate-box">
+                <span class="rate-lbl">Equivalente a Transferir</span>
+                <span class="rate-val" id="rateDisplay">0 COP</span>
+            </div>
+
+            <div class="info-alert">
+                <i class='bx bx-info-circle'></i>
+                <p><strong>Aviso Importante:</strong> La verificación de los pagos puede tardar entre <strong>30 minutos y 5 horas</strong> (o más). Esto depende exclusivamente de la disponibilidad de los dueños de las cuentas bancarias asignadas en cada país.</p>
+            </div>
+            
+            <button class="btn-action" onclick="generateOrder()">GENERAR ORDEN DE PAGO <i class='bx bx-right-arrow-alt'></i></button>
+        </div>
+
+        <!-- Vista: Vender Cuenta FF -->
+        <div class="dashboard-card" id="viewSell" style="display: none;">
+            <div class="card-header">
+                <div class="card-icon" style="color: var(--neon-purple); border-color: rgba(188,19,254,0.3); background: rgba(188,19,254,0.05); box-shadow: 0 0 20px rgba(188,19,254,0.1);"><i class='bx bx-crosshair'></i></div>
+                <h2 class="card-title">SALDO POR CUENTA FF</h2>
+                <p class="card-desc">¿Ya no usas tu cuenta de Free Fire? Véndela a la plataforma de forma segura y recibe el valor tasado directamente en tu saldo para comprar herramientas o licencias.</p>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.02); padding: 20px; border-radius: 16px; text-align: left; margin-bottom: 30px; font-size: 0.85rem; color: #aaa; border: 1px dashed rgba(255,255,255,0.1);">
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                    <li><i class='bx bx-check' style="color: var(--neon-green); font-size: 1.1rem; vertical-align: middle;"></i> Cotización justa y transparente por administrador.</li>
+                    <li><i class='bx bx-check' style="color: var(--neon-green); font-size: 1.1rem; vertical-align: middle;"></i> Proceso de entrega 100% seguro (Middleman protocol).</li>
+                    <li><i class='bx bx-check' style="color: var(--neon-green); font-size: 1.1rem; vertical-align: middle;"></i> Saldo acreditado automáticamente tras la verificación.</li>
+                </ul>
+            </div>
+
+            <button class="btn-action btn-game" onclick="window.location.href='vender_cuenta.html'">
+                INICIAR EVALUACIÓN DE CUENTA <i class='bx bx-chevron-right'></i>
+            </button>
+        </div>
+
+        <!-- Vista: Acortador Monetizado -->
+        <div class="dashboard-card" id="viewAds" style="display: none;">
+            <div class="card-header">
+                <div class="card-icon" style="color: #ff9800; border-color: rgba(255,152,0,0.3); background: rgba(255,152,0,0.05); box-shadow: 0 0 20px rgba(255,152,0,0.1);"><i class='bx bx-share-alt'></i></div>
+                <h2 class="card-title">ACORTADOR MONETIZADO</h2>
+                <p class="card-desc">Convierte tu tráfico en dinero. Ingresa cualquier enlace de descarga, compártelo y gana saldo por cada usuario que pase la publicidad.</p>
+            </div>
+            
+            <div class="input-group">
+                <label>URL de Destino (Ej: Mediafire, Mega)</label>
+                <input type="url" class="input-field" id="targetUrl" placeholder="https://...">
+            </div>
+            
+            <button class="btn-action" onclick="generateAdLink()">CREAR ENLACE RENTABLE <i class='bx bx-bolt-circle'></i></button>
+            
+            <div class="result-panel" id="resultContainer">
+                <span class="link-text" id="shortLinkDisplay"></span>
+                <button class="btn-action" style="padding: 15px; border-radius: 12px; background: rgba(0,243,255,0.05); border: 1px dashed var(--neon-cyan);" onclick="copyShortLink()"><i class='bx bx-copy'></i> Copiar al Portapapeles</button>
+            </div>
+        </div>
+
+        <!-- Vista: Historial Premium -->
+        <div class="history-grid" id="viewHistory" style="display: none;">
+            <div style="text-align: center; padding: 40px; color: #666;">
+                <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <p>Cargando registros del servidor...</p>
+            </div>
+        </div>
+
+        <!-- Input Oculto para Subir Recibos -->
+        <input type="file" id="globalReceiptInput" accept="image/*" style="display:none;">
+    </div>
+
+    <!-- =========================================
+         LOGICA Y SCRIPTS (FIREBASE & UI)
+         ========================================= -->
     <script type="module">
-        import { auth, onAuthStateChanged, db, ref, get } from './firebase-config.js';
+        import { auth, db, onAuthStateChanged, signOut, ref, get, child, push, set, update } from './firebase-config.js';
 
-        // --- CONFIGURACIÓN ---
-        const TASA_CAMBIO = 4200; // PRECIO DEL DÓLAR EN PESOS (AJUSTA AQUÍ)
-        const MINIMO_COP = 8000;  // MÍNIMO EN PESOS
-
+        const IMGBB_KEY = 'fd76f06048b34773ba64f11cc4535ff4';
         let currentUser = null;
-        let currentUsername = "Usuario";
-        let finalUsd = 0;
-        let finalCop = 0;
+        let userData = null;
+        let countriesData = {};
+        let selectedCountryCode = null;
+        let currentUploadOrderId = null; 
 
-        // VERIFICAR USUARIO
-        onAuthStateChanged(auth, (user) => {
+        // 1. SISTEMA DE ALERTAS (TOAST)
+        window.showToast = (message, type) => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            let iconClass = 'bx-info-circle';
+            if(type === 'success') iconClass = 'bx-check-shield';
+            if(type === 'error') iconClass = 'bx-error-circle';
+            
+            toast.innerHTML = `<i class='bx ${iconClass}'></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => { toast.remove(); }, 4000);
+        };
+
+        // 2. AUTENTICACIÓN Y CARGA DE DATOS INICIALES
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                get(ref(db, `users/${user.uid}`)).then(snap => {
-                    if(snap.exists()) {
-                        currentUsername = snap.val().username;
+                get(child(ref(db), `users/${user.uid}`)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        userData = snapshot.val();
+                        document.getElementById('topUserDisplay').innerText = userData.username;
+                        document.getElementById('balanceDisplay').innerText = parseFloat(userData.balance || 0).toFixed(2);
+                        if (userData.avatar) document.getElementById('topAvatar').src = userData.avatar;
+                        if (userData.username.toLowerCase() === 'sebasxit' || userData.username.toLowerCase() === 'luck xit ofc') {
+                            document.getElementById('adminMenuBtn').style.display = 'flex';
+                        }
                     }
                 });
-            } else {
-                window.location.href = "login.html"; // Redirigir si no hay sesión
+                await loadCountries();
+            } else { 
+                window.location.href = "login.html"; 
             }
         });
 
-        // CALCULO EN TIEMPO REAL
-        const input = document.getElementById('amountInput');
-        const display = document.getElementById('conversionDisplay');
-
-        input.addEventListener('input', () => {
-            const val = parseFloat(input.value);
-            if(val > 0) {
-                const cop = val * TASA_CAMBIO;
-                // Formato de moneda: $ 8.000
-                display.innerText = `≈ ${cop.toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits: 0})}`;
-                if(cop < MINIMO_COP) {
-                    display.style.color = "#ff4444"; // Rojo si no llega al mínimo
-                } else {
-                    display.style.color = "#00d2d3"; // Verde azulado si está bien
+        // 3. CARGAR PAÍSES
+        async function loadCountries() {
+            try {
+                const snap = await get(ref(db, 'config/countries'));
+                if (snap.exists()) {
+                    countriesData = snap.val();
+                    const select = document.getElementById('countrySelect');
+                    select.innerHTML = '<option value="" disabled selected>-- Seleccione --</option>';
+                    Object.keys(countriesData).forEach(code => {
+                        const opt = document.createElement('option');
+                        opt.value = code; 
+                        opt.innerText = `${countriesData[code].name} (${countriesData[code].currency})`;
+                        select.appendChild(opt);
+                    });
                 }
-            } else {
-                display.innerText = "≈ 0 COP";
+            } catch (e) {
+                console.error("Error al cargar países:", e);
             }
-        });
+        }
 
-        // 1. GENERAR ORDEN (Paso 1 -> Paso 2)
-        window.generateOrder = () => {
-            const amountUSD = parseFloat(document.getElementById('amountInput').value);
+        // 4. CALCULADORA DINÁMICA DE TASAS
+        const inputUSD = document.getElementById('amountUSD');
+        const displayRate = document.getElementById('rateDisplay');
+        const selectCountry = document.getElementById('countrySelect');
+
+        function updateCalculator() {
+            const amt = parseFloat(inputUSD.value);
+            const countryCode = selectCountry.value;
+            if(!countryCode) return;
             
-            if(!amountUSD || amountUSD <= 0) {
-                alert("Por favor ingresa un monto válido.");
+            const pais = countriesData[countryCode];
+            selectedCountryCode = countryCode;
+
+            if(amt > 0) {
+                const local = amt * pais.rate;
+                displayRate.innerText = `${local.toLocaleString('es-CO')} ${pais.currency}`;
+                displayRate.classList.add('active');
+            } else {
+                displayRate.innerText = `1 USD = ${pais.rate.toLocaleString('es-CO')} ${pais.currency}`;
+                displayRate.classList.remove('active');
+            }
+        }
+
+        inputUSD.addEventListener('input', updateCalculator);
+        selectCountry.addEventListener('change', updateCalculator);
+
+        // 5. NAVEGACIÓN DE PESTAÑAS MEJORADA
+        window.switchTab = (tab) => {
+            ['New', 'History', 'Sell', 'Ads'].forEach(t => {
+                const btn = document.getElementById('tab' + t);
+                const view = document.getElementById('view' + t);
+                if(btn) btn.classList.remove('active');
+                if(view) view.style.display = 'none';
+            });
+
+            const tCap = tab.charAt(0).toUpperCase() + tab.slice(1);
+            document.getElementById('tab' + tCap).classList.add('active');
+            document.getElementById('view' + tCap).style.display = 'block';
+
+            if(tab === 'history') loadHistory();
+        };
+
+        // 6. GENERACIÓN DE ÓRDENES (CON MODIFICACIÓN DE MINIMO $1)
+        window.generateOrder = async () => {
+            const amt = parseFloat(inputUSD.value);
+            if (!amt || !selectedCountryCode) {
+                return showToast("Complete todos los campos del formulario.", "error");
+            }
+
+            if (!userData || !userData.whatsapp) {
+                showToast("Requiere vinculación de WhatsApp en su perfil.", "error");
+                setTimeout(() => { window.location.href = "perfil.html"; }, 2000);
                 return;
             }
 
-            // Lógica de conversión y validación
-            const amountCOP = amountUSD * TASA_CAMBIO;
-
-            if (amountCOP < MINIMO_COP) {
-                alert(`El monto mínimo de recarga son ${MINIMO_COP.toLocaleString()} pesos (aprox $${(MINIMO_COP/TASA_CAMBIO).toFixed(2)} USD).`);
-                return;
-            }
-
-            // Guardamos valores globales para usar en el mensaje
-            finalUsd = amountUSD;
-            finalCop = amountCOP;
-
-            // Actualizar vista
-            document.getElementById('displayAmountUSD').innerText = `$${finalUsd.toFixed(2)}`;
-            document.getElementById('displayAmountCOP').innerText = finalCop.toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits: 0});
-
-            document.getElementById('step1').style.display = 'none';
-            document.getElementById('backBtn').style.display = 'none';
-            document.getElementById('step2').style.display = 'block';
-        };
-
-        // 2. FUNCION MEJORADA: COPIAR Y ABRIR NEQUI
-        window.openNequi = () => {
-            const number = "3214701288";
+            // MODIFICACIÓN APLICADA: Mínimo $1 para TODOS los países
+            let minAmount = 1; 
             
-            // Intento 1: Método Moderno (Portapapeles API)
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(number).then(() => {
-                    launchNequiApp();
-                }).catch(() => {
-                    fallbackCopyText(number);
-                });
-            } else {
-                fallbackCopyText(number);
+            if (amt < minAmount) {
+                return showToast(`Monto mínimo requerido: $${minAmount} USD.`, "error");
             }
-        };
 
-        // Función de respaldo para copiar
-        function fallbackCopyText(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.top = "0";
-            textArea.style.left = "0";
-            textArea.style.position = "fixed";
-            textArea.style.opacity = "0";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
+            const pais = countriesData[selectedCountryCode];
+            const localAmt = amt * pais.rate;
+
+            document.getElementById('globalLoader').style.display = 'flex';
+            document.getElementById('loaderText').innerText = "PROCESANDO";
 
             try {
-                const successful = document.execCommand('copy');
-                if(successful) launchNequiApp();
-                else alert("Copia manual: 3214701288");
-            } catch (err) {
-                alert("Error al copiar. Copia manual.");
+                const orderRef = push(ref(db, `users/${currentUser.uid}/recharges`));
+                await set(orderRef, {
+                    amount: amt,
+                    amountLocal: `${localAmt.toLocaleString('es-CO')} ${pais.currency}`,
+                    countryCode: selectedCountryCode,
+                    countryName: pais.name,
+                    date: Date.now(),
+                    status: 'waiting_proof'
+                });
+
+                inputUSD.value = ""; 
+                displayRate.innerText = "0 COP"; 
+                displayRate.classList.remove('active');
+                document.getElementById('globalLoader').style.display = 'none';
+                
+                showToast("Orden de pago generada correctamente.", "success");
+                switchTab('history');
+
+            } catch (e) {
+                document.getElementById('globalLoader').style.display = 'none';
+                showToast("Error de conexión con el servidor.", "error");
             }
-            document.body.removeChild(textArea);
-        }
-
-        function launchNequiApp() {
-            showToast("¡Copiado! Abriendo Nequi...");
-            setTimeout(() => {
-                window.location.href = "nequi://";
-            }, 1000);
-        }
-
-        // 3. ENVIAR COMPROBANTE A WHATSAPP (LOGICA MODIFICADA)
-        window.sendProof = () => {
-            const phone = "573142369516"; // Tu número de WhatsApp
-            
-            // Formatear mensaje con USD y COP
-            const copFormat = finalCop.toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits: 0});
-            
-            const message = `👋 Hola Admin, quiero recargar mi cuenta.
-            
-👤 Usuario: *${currentUsername}*
-💵 Monto USD: *$${finalUsd.toFixed(2)}*
-🇨🇴 Monto COP: *${copFormat}*
-
-Adjunto el comprobante de Nequi:`;
-            
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
         };
 
-        // 4. REINICIAR FORMULARIO
-        window.resetForm = () => {
-            document.getElementById('step1').style.display = 'block';
-            document.getElementById('backBtn').style.display = 'block';
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('amountInput').value = "";
-            document.getElementById('conversionDisplay').innerText = "≈ 0 COP";
-            document.getElementById('conversionDisplay').style.color = "#00d2d3";
+        // 7. CARGAR HISTORIAL DE TRANSACCIONES
+        async function loadHistory() {
+            const container = document.getElementById('viewHistory');
+            try {
+                const snap = await get(ref(db, `users/${currentUser.uid}/recharges`));
+                container.innerHTML = "";
+                
+                if (!snap.exists()) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #555;">
+                            <i class='bx bx-ghost' style="font-size: 3rem; margin-bottom: 10px;"></i>
+                            <p>No existen registros de transacciones.</p>
+                        </div>`;
+                    return;
+                }
+
+                let records = [];
+                snap.forEach(child => { records.push({ id: child.key, ...child.val() }); });
+                records.sort((a, b) => b.date - a.date);
+
+                records.forEach(rec => {
+                    const dateObj = new Date(rec.date);
+                    const dateStr = dateObj.toLocaleDateString() + " • " + dateObj.toLocaleTimeString();
+                    const shortId = rec.id.substring(1, 8).toUpperCase();
+
+                    let badgeHtml = ""; let actionsHtml = "";
+
+                    if(rec.status === 'waiting_proof') {
+                        badgeHtml = `<div class="badge-status st-wait"><i class='bx bx-time-five'></i> Pendiente</div>`;
+                        actionsHtml = `
+                            <button class="h-btn h-btn-outline" onclick="copyOrder('${rec.countryCode}', '${rec.amountLocal}', '${shortId}')"><i class='bx bx-copy'></i> Bancos</button>
+                            <button class="h-btn h-btn-outline" onclick="shareWa('${rec.amountLocal}', '${shortId}')"><i class='bx bxl-whatsapp'></i> Admin</button>
+                            <button class="h-btn h-btn-primary" onclick="triggerUpload('${rec.id}')"><i class='bx bx-upload'></i> Enviar Recibo</button>
+                        `;
+                    } else if (rec.status === 'pending_approval') {
+                        badgeHtml = `<div class="badge-status st-rev"><i class='bx bx-search'></i> Revisando</div>`;
+                        actionsHtml = `<button class="h-btn" style="background:rgba(255,255,255,0.02); color:#666; cursor:not-allowed;"><i class='bx bx-lock'></i> Recibo en proceso de validación</button>`;
+                    } else if (rec.status === 'approved') {
+                        badgeHtml = `<div class="badge-status st-ok"><i class='bx bx-check'></i> Aprobado</div>`;
+                        actionsHtml = `<button class="h-btn" style="background:transparent; color:#00ff00; border: 1px dashed rgba(0,255,0,0.3);"><i class='bx bx-check-double'></i> Transacción Completada</button>`;
+                    } else if (rec.status === 'rejected') {
+                        badgeHtml = `<div class="badge-status st-fail"><i class='bx bx-x'></i> Rechazado</div>`;
+                        actionsHtml = `<button class="h-btn" style="background:transparent; color:var(--neon-red); border: 1px dashed rgba(255,7,58,0.3);"><i class='bx bx-error'></i> Pago declinado</button>`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="h-card">
+                            <div class="h-header">
+                                <div class="h-info">
+                                    <span class="id">ORDEN #${shortId}</span>
+                                    <span class="date">${dateStr}</span>
+                                </div>
+                                ${badgeHtml}
+                            </div>
+                            <div class="h-data">
+                                <div><label>Región</label><span>${rec.countryName}</span></div>
+                                <div><label>Depósito (USD)</label><span style="color: var(--neon-green);">$${rec.amount.toFixed(2)}</span></div>
+                                <div style="grid-column: span 2;"><label>Total a Transferir Local</label><span>${rec.amountLocal}</span></div>
+                            </div>
+                            <div class="h-actions">${actionsHtml}</div>
+                        </div>
+                    `;
+                });
+
+            } catch (e) {
+                container.innerHTML = `<p style="color:var(--neon-red); text-align:center;">Error de sincronización.</p>`;
+            }
+        }
+
+        // 8. FUNCIONES DE APOYO DEL HISTORIAL
+        window.copyOrder = (cCode, localAmt, shortId) => {
+            const pais = countriesData[cCode];
+            let text = `[RECARGA SISTEMA] ORDEN #${shortId}\nMonto: ${localAmt}\n\nBANCOS DISPONIBLES:\n`;
+            if(pais && pais.paymentMethods) {
+                pais.paymentMethods.forEach(m => { text += `> ${m.bankName}: ${m.accountNumber}\n`; });
+            } else { text += "Solicitar interno al administrador."; }
+            navigator.clipboard.writeText(text);
+            showToast("Datos bancarios copiados.", "info");
         };
 
-        // Mostrar notificación flotante
-        function showToast(text) {
-            const x = document.getElementById("toast");
-            x.innerText = text;
-            x.style.visibility = "visible";
-            x.style.opacity = "1";
-            setTimeout(function(){ 
-                x.style.visibility = "hidden"; 
-                x.style.opacity = "0";
-            }, 3000);
+        window.shareWa = (localAmt, shortId) => {
+            const msg = encodeURIComponent(`Hola Admin, solicito datos para la ORDEN #${shortId} por ${localAmt}.`);
+            window.open(`https://wa.me/?text=${msg}`);
+        };
+
+        window.triggerUpload = (orderId) => {
+            currentUploadOrderId = orderId;
+            document.getElementById('globalReceiptInput').click();
+        };
+
+        // 9. CARGA DE RECIBOS A IMGBB
+        document.getElementById('globalReceiptInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentUploadOrderId) return;
+
+            document.getElementById('globalLoader').style.display = 'flex';
+            document.getElementById('loaderText').innerText = "SUBIENDO";
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+                const json = await res.json();
+
+                if (json.success) {
+                    const imageUrl = json.data.url;
+                    const orderSnap = await get(ref(db, `users/${currentUser.uid}/recharges/${currentUploadOrderId}`));
+                    const orderData = orderSnap.val();
+
+                    await update(ref(db), {
+                        [`users/${currentUser.uid}/recharges/${currentUploadOrderId}/status`]: 'pending_approval',
+                        [`users/${currentUser.uid}/recharges/${currentUploadOrderId}/receiptUrl`]: imageUrl
+                    });
+
+                    await set(ref(db, `pending_receipts/${currentUploadOrderId}`), {
+                        uid: currentUser.uid,
+                        username: document.getElementById('topUserDisplay').innerText,
+                        amountUsd: orderData.amount,
+                        amountLocal: orderData.amountLocal,
+                        countryName: orderData.countryName,
+                        receiptUrl: imageUrl,
+                        date: Date.now()
+                    });
+
+                    document.getElementById('globalLoader').style.display = 'none';
+                    showToast("Recibo enviado a verificación.", "success");
+                    loadHistory(); 
+                } else throw new Error("API Error");
+            } catch (err) {
+                document.getElementById('globalLoader').style.display = 'none';
+                showToast("Fallo al subir imagen. Intente de nuevo.", "error");
+            }
+        });
+
+        // 10. GENERACIÓN DE ENLACES ACORTADOS
+        window.generateAdLink = async () => {
+            const urlInput = document.getElementById('targetUrl').value;
+            if (!urlInput.startsWith('http')) return showToast("Formato de URL inválido.", "error");
+
+            document.getElementById('globalLoader').style.display = 'flex';
+            document.getElementById('loaderText').innerText = "ENCRIPTANDO";
+
+            try {
+                const linksRef = ref(db, 'monetized_links');
+                const newLinkRef = push(linksRef);
+                const linkId = newLinkRef.key;
+
+                let rawUsername = document.getElementById('topUserDisplay').innerText;
+                let cleanUsername = rawUsername.trim().replace(/\s+/g, '_').toLowerCase();
+
+                await set(newLinkRef, {
+                    owner: currentUser.uid,
+                    ownerName: cleanUsername,
+                    target: urlInput,
+                    views: 0,
+                    createdAt: Date.now()
+                });
+
+                const finalUrl = `${window.location.origin}/ads.html?u=${cleanUsername}&l=${linkId}`;
+                document.getElementById('shortLinkDisplay').innerText = finalUrl;
+                document.getElementById('resultContainer').style.display = 'block';
+                document.getElementById('targetUrl').value = '';
+                document.getElementById('globalLoader').style.display = 'none';
+                showToast("Enlace protegido y listo para monetizar.", "success");
+
+            } catch (error) {
+                document.getElementById('globalLoader').style.display = 'none';
+                showToast("Fallo en base de datos.", "error");
+            }
+        };
+
+        window.copyShortLink = () => {
+            navigator.clipboard.writeText(document.getElementById('shortLinkDisplay').innerText);
+            showToast("URL copiada.", "info");
+        };
+    </script>
+
+    <script>
+        // CONTROLES DE INTERFAZ
+        const sidebar = document.getElementById('sidebar'); 
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        document.getElementById('openMenuBtn').addEventListener('click', () => { 
+            sidebar.classList.add('active'); 
+            overlay.classList.add('active'); 
+        });
+        
+        document.getElementById('closeMenuBtn').addEventListener('click', () => { 
+            sidebar.classList.remove('active'); 
+            overlay.classList.remove('active'); 
+        });
+        
+        overlay.addEventListener('click', () => { 
+            sidebar.classList.remove('active'); 
+            overlay.classList.remove('active'); 
+        });
+
+        // SISTEMA DE PARTÍCULAS (Lento y sutil para aspecto premium)
+        const canvas = document.getElementById('particle-canvas'); 
+        const ctx = canvas.getContext('2d'); 
+        let width, height, particles = [];
+        
+        function resize() { 
+            width = canvas.width = window.innerWidth; 
+            height = canvas.height = window.innerHeight; 
+        } 
+        
+        window.addEventListener('resize', resize); 
+        resize();
+        
+        class Particle { 
+            constructor() { 
+                this.x = Math.random() * width; 
+                this.y = Math.random() * height; 
+                this.vx = (Math.random() - 0.5) * 0.5; 
+                this.vy = (Math.random() - 0.5) * 0.5; 
+                this.size = Math.random() * 1.5 + 0.5; 
+                this.color = Math.random() > 0.5 ? 'rgba(0, 243, 255, ' : 'rgba(188, 19, 254, '; 
+                this.alpha = Math.random() * 0.3 + 0.1; 
+            } 
+            update() { 
+                this.x += this.vx; 
+                this.y += this.vy; 
+                if (this.x < 0 || this.x > width) this.vx *= -1; 
+                if (this.y < 0 || this.y > height) this.vy *= -1; 
+            } 
+            draw() { 
+                ctx.beginPath(); 
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); 
+                ctx.fillStyle = this.color + this.alpha + ')'; 
+                ctx.fill(); 
+            } 
         }
+        
+        for (let i = 0; i < 40; i++) particles.push(new Particle());
+        
+        function animate() { 
+            ctx.clearRect(0, 0, width, height); 
+            particles.forEach(p => { p.update(); p.draw(); }); 
+            requestAnimationFrame(animate); 
+        } 
+        animate();
     </script>
 </body>
 </html>
